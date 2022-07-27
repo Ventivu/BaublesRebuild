@@ -34,7 +34,7 @@ public class PacketSyncBauble implements IMessage, IMessageHandler<PacketSyncBau
 		buffer.writeByte(slot);
 		buffer.writeInt(playerId);
 		PacketBuffer pb = new PacketBuffer(buffer);
-		try { pb.writeItemStackToBuffer(bauble); } catch (IOException e) {}
+		try { pb.writeItemStackToBuffer(bauble); } catch (IOException ignored) {}
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class PacketSyncBauble implements IMessage, IMessageHandler<PacketSyncBau
 		slot = buffer.readByte();
 		playerId = buffer.readInt();
 		PacketBuffer pb = new PacketBuffer(buffer);
-		try { bauble = pb.readItemStackFromBuffer(); } catch (IOException e) {}
+		try { bauble = pb.readItemStackFromBuffer(); } catch (IOException ignored) {}
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class PacketSyncBauble implements IMessage, IMessageHandler<PacketSyncBau
 		World world = Baubles.proxy.getClientWorld();
 		if (world==null) return null;
 		Entity p = world.getEntityByID(message.playerId);
-		if (p !=null && p instanceof EntityPlayer) {
+		if (p instanceof EntityPlayer) {
 			PlayerHandler.getPlayerBaubles((EntityPlayer) p).stackList[message.slot]=message.bauble;
 		}
 		return null;

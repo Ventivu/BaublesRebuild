@@ -1,9 +1,15 @@
 buildscript {
     repositories {
+        maven {
+            name = "aliyun"
+            url "https://maven.aliyun.com/repository/public/"
+        }
+        maven { url = "https://cyankoton.github.io/maven" }
         mavenCentral()
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            //url = "https://files.minecraftforge.net/maven"
+            url = "https://maven.minecraftforge.net"
         }
         maven {
             name = "sonatype"
@@ -11,59 +17,105 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath("io.github.cyankoton:ForgeGradle:1.2-1.0.8") {
+            changing = true
+        }
     }
+}
+plugins {
+    id 'java-library'    // JAVA 依赖库
 }
 
 apply plugin: 'forge'
 
-version = "1.7.10-1.0.1.10"
-group= "com.azanor.baubles" 
+
+// JAVA 版本
+sourceCompatibility = targetCompatibility = '1.8'
+
+mirrorstation {
+    // cyankoton
+    mcJsonUrl = "https://s3.amazonaws.com/Minecraft.Download/versions/{MC_VERSION}/{MC_VERSION}.json"
+    mcJarUrl = "https://cyankoton.github.io/maven/minecraft/versions/{MC_VERSION}/{MC_VERSION}.jar"
+    mcServerUrl = "https://cyankoton.github.io/maven/minecraft/versions/{MC_VERSION}/minecraft_server.{MC_VERSION}.jar"
+    mcpUrl = "https://files.minecraftforge.net/fernflower-fix-1.0.zip"
+    assetsUrl = "https://resources.download.minecraft.net"
+    libraryUrl = "https://libraries.minecraft.net/"
+    assetsIndexUrl = "https://s3.amazonaws.com/Minecraft.Download/indexes/{ASSET_INDEX}.json"
+    forgeMavenUrl = "https://maven.minecraftforge.net"
+    // mirror
+    mirrorMavenUrl = "https://cyankoton.github.io/maven"
+    aliyunMavenUrl = "https://maven.aliyun.com/repository/public"
+    mavenMavenUrl = "https://repo1.maven.org/maven2"
+
+    /*
+    // 默认设置
+    mcJsonUrl = "https://s3.amazonaws.com/Minecraft.Download/versions/{MC_VERSION}/{MC_VERSION}.json"
+    mcJarUrl = "https://s3.amazonaws.com/Minecraft.Download/versions/{MC_VERSION}/{MC_VERSION}.jar"
+    mcServerUrl = "https://s3.amazonaws.com/Minecraft.Download/versions/{MC_VERSION}/minecraft_server.{MC_VERSION}.jar"
+    mcpUrl = "https://files.minecraftforge.net/fernflower-fix-1.0.zip"
+    assetsUrl = "https://resources.download.minecraft.net"
+    libraryUrl = "https://libraries.minecraft.net/"
+    assetsIndexUrl = "https://s3.amazonaws.com/Minecraft.Download/indexes/{ASSET_INDEX}.json"
+    forgeMavenUrl = "https://maven.minecraftforge.net"
+    // mirror
+    mirrorMavenUrl = "https://cyankoton.github.io/maven"
+    aliyunMavenUrl = "https://maven.aliyun.com/repository/public"
+    mavenMavenUrl = "https://repo1.maven.org/maven2"
+    */
+}
+
+version = "1.0.2 Pre"
+group = "com.Ventivu.baubles"
 archivesBaseName = "Baubles"
 
+
 minecraft {
-    version = "1.7.10-10.13.2.1236"
-    assetDir = "eclipse/assets"
+    version = "1.7.10-10.13.4.1614-1.7.10"
+    runDir = "eclipse"
+    // mappings = "stable_12"
 }
 
-processResources
-{
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+dependencies {
+    implementation 'org.jetbrains:annotations-java5:20.1.0'
+    implementation fileTree("Mods")
+    compileOnly fileTree("DepMods")
+    compileOnly files("../MagCore/build/libs/MagCoreDev-source.jar")
+    implementation files("../MagCore/build/libs/MagCoreDev.jar")
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+    filesMatching('mcmod.info') {
+        expand 'version': project.version, 'mcversion': project.minecraft.version
     }
-        
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-    
+}
+// http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
 }
 
-// Create deobf dev jars
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
-}
 
-// Create API library zip
-task apiJar(type: Jar) {
-    from(sourceSets.main.java) {
-        include "baubles/api/**"
-    }
-    classifier = 'api'
-}
-
-task sourcesJar(type: Jar) {
+// 这将此任务创建一个.jar文件，其中包含此 MOD 的源代码
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = "sources"
     from sourceSets.main.allSource
-    classifier = 'sources'
 }
 
-artifacts {
-    archives deobfJar
-    archives apiJar
-    archives sourcesJar
+
+// 这将此任务将创建一个.jar文件，其中包含此mod的已取消订阅版本，供其他开发人员在开发环境中使用。
+task devJar(type: Jar) {
+    classifier = "dev"
+    from sourceSets.main.output
 }
+// 在构建 MOD 时候，创建列出的工件
+artifacts {
+    archives sourcesJar
+    archives devJar
+}
+
+runClient {
+    args("--username", "Ventivu")
+}
+
+//---------------------------------------------------------------------------------------------

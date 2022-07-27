@@ -8,3 +8,9 @@ button.normal=Normal
 #
 # Keybinding
 keybind.baublesinventory=Baubles Inventory
+
+#new
+baubles.message.loadbackup=Data not found for %s. Trying to load backup data.
+baubles.message.loaderror=Backup data not found for %s.
+baubles.message.savebackuperror=Error saving backup data for %s.
+baubles.message.saveerror=Error saving data for %s.

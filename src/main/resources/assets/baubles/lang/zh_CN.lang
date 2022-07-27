@@ -5,3 +5,9 @@ item.Ring.0.name=矿工指环
 # GUI
 button.baubles=饰品
 button.normal=普通
+
+#new
+baubles.message.loadbackup=玩家%s的数据未找到，尝试读取备份。
+baubles.message.loaderror=玩家%s的数据未找到，尝试读取备份失败。
+baubles.message.savebackuperror=保存玩家%s备份失败。
+baubles.message.saveerror=保存玩家%s数据失败。
