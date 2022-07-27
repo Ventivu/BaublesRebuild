@@ -4,6 +4,7 @@
 build/
 eclipse/
 .gradle
+Mods/
 
 #################
 ## Eclipse

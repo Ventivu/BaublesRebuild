@@ -24,7 +24,7 @@ public class EventHandlerEntity {
 	private File playerDirectory;
 	
 	// hash containing game mode of all players
-	private Map<String,Boolean> playerModes = new HashMap<String,Boolean>();
+	private final Map<String,Boolean> playerModes = new HashMap<>();
 	
 	@SubscribeEvent
 	public void playerTick(PlayerEvent.LivingUpdateEvent event) {
@@ -54,10 +54,8 @@ public class EventHandlerEntity {
 			
 			InventoryBaubles baubles = PlayerHandler.getPlayerBaubles(player);
 			for (int a = 0; a < baubles.getSizeInventory(); a++) {
-				if (baubles.getStackInSlot(a) != null
-						&& baubles.getStackInSlot(a).getItem() instanceof IBauble) {
-					((IBauble) baubles.getStackInSlot(a).getItem()).onWornTick(
-							baubles.getStackInSlot(a), player);
+				if (baubles.getStackInSlot(a) != null && baubles.getStackInSlot(a).getItem() instanceof IBauble) {
+					((IBauble) baubles.getStackInSlot(a).getItem()).onWornTick(baubles.getStackInSlot(a), player);
 				}
 			}
 
@@ -67,12 +65,8 @@ public class EventHandlerEntity {
 
 	@SubscribeEvent
 	public void playerDeath(PlayerDropsEvent event) {
-		if (event.entity instanceof EntityPlayer
-				&& !event.entity.worldObj.isRemote
-				&& !event.entity.worldObj.getGameRules()
-						.getGameRuleBooleanValue("keepInventory")) {
-			PlayerHandler.getPlayerBaubles(event.entityPlayer).dropItemsAt(
-					event.drops,event.entityPlayer);
+		if (event.entity instanceof EntityPlayer && !event.entity.worldObj.isRemote && !event.entity.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory")) {
+			PlayerHandler.getPlayerBaubles(event.entityPlayer).dropItemsAt(event.drops,event.entityPlayer);
 		}
 
 	}
@@ -111,14 +105,14 @@ public class EventHandlerEntity {
 					filep.delete();
 					File fb = getPlayerFileUUID(fileNameBackup, directory, player.getGameProfile().getId().toString());
 					if (fb.exists()) fb.delete();					
-				} catch (IOException e) {}
+				} catch (IOException ignored) {}
 			} else {
 				File filet = getLegacyFileFromPlayer(player);
 				if (filet.exists()) {
 					try {
 						Files.copy(filet, file1);
 						Baubles.log.info("Using pre MC 1.7.10 Baubles savefile for "+player.getCommandSenderName());
-					} catch (IOException e) {}
+					} catch (IOException ignored) {}
 				}
 			}
 		}

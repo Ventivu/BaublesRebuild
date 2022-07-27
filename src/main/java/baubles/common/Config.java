@@ -1,50 +1,61 @@
 package baubles.common;
 
-import java.io.File;
-
+import baubles.common.lib.PlayerHandler;
+import baubles.gui.UIController;
+import com.ventivu.core.Core.Commands;
+import com.ventivu.core.Core.PropLoader;
 import net.minecraft.item.Item;
-import net.minecraftforge.common.config.Configuration;
 import baubles.common.items.ItemRing;
-import cpw.mods.fml.common.registry.GameRegistry;
 
 
-public class Config {
-	
-	public static Configuration config;
-	public static Item itemRing;
-	
+public class Config extends PropLoader {
+
+    public static Item itemRing;
+    public static UIController controller;
     // config properties
     private static boolean splitSurvivalCreative = false;
-	
-	public static void initialize(File file)
-    {
-		config = new Configuration(file);
-        config.load();
-        
-        itemRing =(new ItemRing()).setUnlocalizedName("Ring");
-		GameRegistry.registerItem(itemRing, "Ring", Baubles.MODID);        
-        
-		splitSurvivalCreative = config.getBoolean("splitSurvivalCreative", "server", splitSurvivalCreative, "Split Baubles inventory for survival and creative game modes.");
-		
-        //save it
-		config.save();
+    private static boolean defaultMode = true;
+    static Config instance;
+
+    public Config() {
+        setFile(Baubles.MODID);
+        instance = this;
+        reload();
     }
 
-	
-	public static void save()
-    {
-        config.save();
-    }	
-		
-	public static void initRecipe() {	
-//		GameRegistry.addShapedRecipe(
-//				new ItemStack(itemRing), new Object[] {
-//					"PIP", "IPI", "PIP", 
-//					Character.valueOf('I'), new ItemStack(Items.iron_ingot), 
-//					Character.valueOf('P'), new ItemStack(Items.potionitem,1,8226)});
-	}
-	
+    public static void initialize() {
+        itemRing = (new ItemRing("Ring"));
+        Commands.addReloadControl(Baubles.MODNAME, Config.class);
+        reload();
+    }
+
+    public static void load() {
+        {
+            splitSurvivalCreative = instance.loadProp("server", "SplitSurvivalCreative", false, "是否分离生存和创造模式的饰品栏").getBoolean();//save it
+            defaultMode = instance.loadProp("common", "defaultMode", true, "是否使用默认的饰品栏").getBoolean();
+            instance.config.save();
+            if (!defaultMode) {
+                controller = new UIController();
+            }
+        }
+    }
+
+
+    public static void save() {
+        if (instance.config != null) instance.config.save();
+    }
+
     public static boolean isSplitSurvivalCreative() {
         return splitSurvivalCreative;
+    }
+
+    public static boolean isDefaultMode() {
+        return defaultMode;
+    }
+
+    public static void reload() {
+        instance.config.load();
+        load();
+        PlayerHandler.refreshPlayerBaubles();
     }
 }

@@ -5,3 +5,10 @@ item.Ring.0.name=礦工戒指
 # GUI
 button.baubles=飾品裝備欄
 button.normal=一般裝備欄
+
+#new
+baubles.message.loadbackup=載入玩家%s的備份
+baubles.message.loaderror=載入玩家%s的備份時發生錯誤
+baubles.message.savebackuperror=儲存玩家%s的備份時發生錯誤
+baubles.message.saveerror=儲存玩家%s的数据時發生錯誤
+

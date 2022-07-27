@@ -1,3 +1,9 @@
+1.0.2 pre
+- 修改部分内容以接入MagCore用于动态化处理
+- 支持设置任意数量饰品格位
+- 剔除NEI事件，并取消了对药水效果的显示
+
+//以下为原更新日志
 1.0.1.10
 - api package-info.java cleanup (closes #80)
 - now you won't lose items in bauble crafting grid when switching back to vanilla inventory 
