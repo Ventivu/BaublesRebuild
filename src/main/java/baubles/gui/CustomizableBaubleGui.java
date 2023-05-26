@@ -1,8 +1,8 @@
 package baubles.gui;
 
 import baubles.common.Baubles;
-import com.ventivu.core.GuiFactory.AbstractContainer;
-import com.ventivu.core.GuiFactory.CustomizableGui;
+import ventivu.core.GuiFactory.AbstractContainer;
+import ventivu.core.GuiFactory.CustomizableGui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.achievement.GuiAchievements;
 import net.minecraft.client.gui.achievement.GuiStats;
@@ -33,25 +33,20 @@ public class CustomizableBaubleGui extends CustomizableGui {
     }
 
     @Override
-    protected void actionPerformed(GuiButton button)
-    {
-        if (button.id == 0)
-        {
+    protected void actionPerformed(GuiButton button) {
+        if (button.id == 0) {
             mc.displayGuiScreen(new GuiAchievements(this, this.mc.thePlayer.getStatFileWriter()));
         }
 
-        if (button.id == 1)
-        {
+        if (button.id == 1) {
             mc.displayGuiScreen(new GuiStats(this, this.mc.thePlayer.getStatFileWriter()));
         }
     }
 
     @Override
     protected void keyTyped(char charter, int keycode) {
-        if (keycode == Baubles.proxy.keyHandler.key.getKeyCode())
-        {
+        if (keycode == Baubles.proxy.keyHandler.key.getKeyCode()) {
             mc.thePlayer.closeScreen();
-        } else
-            super.keyTyped(charter, keycode);
+        } else super.keyTyped(charter, keycode);
     }
 }

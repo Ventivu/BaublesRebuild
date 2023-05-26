@@ -22,15 +22,11 @@ buildscript {
         }
     }
 }
-plugins {
-    id 'java-library'    // JAVA 依赖库
-}
 
 apply plugin: 'forge'
-
-
-// JAVA 版本
+apply plugin: 'curseforge'
 sourceCompatibility = targetCompatibility = '1.8'
+
 
 mirrorstation {
     // cyankoton
@@ -46,76 +42,99 @@ mirrorstation {
     mirrorMavenUrl = "https://cyankoton.github.io/maven"
     aliyunMavenUrl = "https://maven.aliyun.com/repository/public"
     mavenMavenUrl = "https://repo1.maven.org/maven2"
-
-    /*
-    // 默认设置
-    mcJsonUrl = "https://s3.amazonaws.com/Minecraft.Download/versions/{MC_VERSION}/{MC_VERSION}.json"
-    mcJarUrl = "https://s3.amazonaws.com/Minecraft.Download/versions/{MC_VERSION}/{MC_VERSION}.jar"
-    mcServerUrl = "https://s3.amazonaws.com/Minecraft.Download/versions/{MC_VERSION}/minecraft_server.{MC_VERSION}.jar"
-    mcpUrl = "https://files.minecraftforge.net/fernflower-fix-1.0.zip"
-    assetsUrl = "https://resources.download.minecraft.net"
-    libraryUrl = "https://libraries.minecraft.net/"
-    assetsIndexUrl = "https://s3.amazonaws.com/Minecraft.Download/indexes/{ASSET_INDEX}.json"
-    forgeMavenUrl = "https://maven.minecraftforge.net"
-    // mirror
-    mirrorMavenUrl = "https://cyankoton.github.io/maven"
-    aliyunMavenUrl = "https://maven.aliyun.com/repository/public"
-    mavenMavenUrl = "https://repo1.maven.org/maven2"
-    */
 }
 
-version = "1.0.2 Pre"
-group = "com.Ventivu.baubles"
-archivesBaseName = "Baubles"
+version = ModVersion
+archivesBaseName = ModName
+group = "Ventivu"
 
+def props = new Properties()
+file("../MagCore/gradle.properties").withInputStream { props.load(it) }
+def coreversion=props.getProperty("ModVersion")
 
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
     runDir = "eclipse"
-    // mappings = "stable_12"
+    replaceIn ContainerClass
+    replace "@ModVersion@", ModVersion
+    replace "@ModName@", ModName
+    replace "@ModID@", ModID
+    replace "@CoreVersion@", coreversion
+    if(GuiFactory=="") println "我木得配置"
+    replace "@ModFactory@", GuiFactory
+    //mappings = "stable_12"
 }
 
+// 依赖库
+def uselib = true
+def coreLocation = "../MagCore/build/libs/%s"
+def complie = String.format(coreLocation, "MagCore-${coreversion}.jar")
+def runtime = String.format(coreLocation, "MagCore-${coreversion}-Dev.jar")
+def sources = String.format(coreLocation, "MagCore-${coreversion}-sources.jar")
 dependencies {
     implementation 'org.jetbrains:annotations-java5:20.1.0'
+    //implementation 'Ventivu:MagCore:' + coreversion
     implementation fileTree("Mods")
     compileOnly fileTree("DepMods")
-    compileOnly files("../MagCore/build/libs/MagCoreDev-source.jar")
-    implementation files("../MagCore/build/libs/MagCoreDev.jar")
-}
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-    filesMatching('mcmod.info') {
-        expand 'version': project.version, 'mcversion': project.minecraft.version
+    if (uselib) {
+        compileOnly files(complie)
+        runtimeOnly files(runtime)
     }
 }
-// http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+
+
+processResources {
+    inputs.property "version", ModVersion
+    inputs.property "mcversion", project.minecraft.version
+    inputs.property "modID", ModID
+    inputs.property "modName", ModName
+    inputs.property "desc", ModDescription
+
+    filesMatching('mcmod.info') {
+        expand 'version': ModVersion,
+                'mcversion': project.minecraft.version,
+                'modID': ModID,
+                'modName': ModName,
+                'desc': ModDescription
+    }
+}
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
 
+task buildJar(type: Jar) {
+    archiveName(archivesBaseName + "Dev.jar")
+    from sourceSets.main.output
+}
 
 // 这将此任务创建一个.jar文件，其中包含此 MOD 的源代码
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
+    archiveName(archivesBaseName + "Dev-sources.jar")
     from sourceSets.main.allSource
 }
 
 
-// 这将此任务将创建一个.jar文件，其中包含此mod的已取消订阅版本，供其他开发人员在开发环境中使用。
-task devJar(type: Jar) {
-    classifier = "dev"
-    from sourceSets.main.output
-}
 // 在构建 MOD 时候，创建列出的工件
 artifacts {
     archives sourcesJar
-    archives devJar
+    archives buildJar
 }
 
 runClient {
     args("--username", "Ventivu")
+    if (hasTransformer) args("-Dfml.coreMods.load=" + TransFormerFile)
 }
 
+runServer {
+    if (hasTransformer) args("-Dfml.coreMods.load=" + TransFormerFile)
+}
+
+jar {
+    def manifestAttributes = [:]
+    manifestAttributes += ["FMLCorePluginContainsFMLMod": true]
+    manifestAttributes += ["FMLCorePlugin": TransFormerFile]
+    manifest {
+        if (hasTransformer) attributes(manifestAttributes)
+    }
+}
 //---------------------------------------------------------------------------------------------

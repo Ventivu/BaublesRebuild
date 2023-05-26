@@ -1,11 +1,12 @@
 package baubles.common.container;
 
-import baubles.api.BaubleType;
+import baubles.api.BaubleTypeProxy;
 import baubles.api.IBauble;
 import baubles.common.Baubles;
-import baubles.common.Config;
+import baubles.common.Configuration.Configuration;
 import baubles.common.network.PacketHandler;
 import baubles.common.network.PacketSyncBauble;
+import baubles.common.network.PacketSyncSlots;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,7 +29,7 @@ public class InventoryBaubles implements IInventory {
     public ArrayList<ItemStack> cache= new ArrayList<>();
 
     public InventoryBaubles(EntityPlayer player) {
-        this(player, BaubleType.values().length);
+        this(player, BaubleTypeProxy.values().length);
     }
 
     public InventoryBaubles(EntityPlayer player, int size) {
@@ -197,7 +198,7 @@ public class InventoryBaubles implements IInventory {
     public boolean isItemValidForSlot(int i, ItemStack stack) {
         if (stack == null || !(stack.getItem() instanceof IBauble) || !((IBauble) stack.getItem()).canEquip(stack, player.get()))
             return false;
-        return Config.controller.getType(i) == BaubleType.ANY || Config.controller.getType(i) == ((IBauble) stack.getItem()).getBaubleType(stack);
+        return Configuration.getList().get(i) == BaubleTypeProxy.ANY || Configuration.getList().get(i).getOldtype() == ((IBauble) stack.getItem()).getBaubleType(stack);
     }
 
     public void saveNBT(EntityPlayer player) {
@@ -296,6 +297,16 @@ public class InventoryBaubles implements IInventory {
                 syncSlotToClients(i);
             }
         }
+    }
+
+    public void syncContainerToClients(){
+        try {
+        if (Baubles.proxy.getClientWorld() == null)
+            PacketHandler.INSTANCE.sendToAll(new PacketSyncSlots());
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
     }
 
     public void syncSlotToClients(int slot) {

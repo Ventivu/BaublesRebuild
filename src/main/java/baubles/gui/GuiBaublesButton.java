@@ -1,6 +1,6 @@
 package baubles.gui;
 
-import baubles.api.BaubleType;
+import baubles.api.BaubleTypeProxy;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
@@ -17,7 +17,7 @@ public class GuiBaublesButton extends GuiButton {
     public void drawButton(Minecraft mc, int xx, int yy) {
         if (this.visible) {
             FontRenderer fontrenderer = mc.fontRenderer;
-            mc.getTextureManager().bindTexture(BaubleType.widgetTexture);
+            mc.getTextureManager().bindTexture(BaubleTypeProxy.widgetTexture);
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.field_146123_n = xx >= this.xPosition && yy >= this.yPosition && xx < this.xPosition + this.width && yy < this.yPosition + this.height;
             int k = this.getHoverState(this.field_146123_n);

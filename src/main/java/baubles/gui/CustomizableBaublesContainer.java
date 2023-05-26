@@ -1,13 +1,11 @@
 package baubles.gui;
 
-import baubles.api.BaubleType;
+import baubles.api.BaubleTypeProxy;
 import baubles.api.IBauble;
-import baubles.common.Config;
+import baubles.common.Configuration.Configuration;
 import baubles.common.container.InventoryBaubles;
+import baubles.common.container.SlotBauble;
 import baubles.common.lib.PlayerHandler;
-import com.ventivu.core.GuiFactory.AbstractContainer;
-import com.ventivu.core.GuiFactory.CustomGui;
-import com.ventivu.core.MagCore;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -15,6 +13,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.Level;
+import ventivu.core.GuiFactory.AbstractContainer;
+import ventivu.core.GuiFactory.CustomGui;
+import ventivu.core.MagCore;
 
 public class CustomizableBaublesContainer extends AbstractContainer {
     public InventoryBaubles baubles;
@@ -23,7 +24,7 @@ public class CustomizableBaublesContainer extends AbstractContainer {
     public CustomizableBaublesContainer(EntityPlayer player, World world, int x, int y, int z, CustomGui manager) {
         super(player, world, x, y, z, manager);
         thePlayer = player;
-        baubles = new InventoryBaubles(player, Config.controller.storage.baubleSlots.size());
+        baubles = new InventoryBaubles(player, Configuration.getList().size());
         baubles.setEventHandler(this);
         indexMap.put(baubles, 0);
         if (!player.worldObj.isRemote) {
@@ -31,15 +32,15 @@ public class CustomizableBaublesContainer extends AbstractContainer {
         }
     }
 
-    public void addBaubleSlotCenter(BaubleType type) {
+    public void addBaubleSlotCenter(BaubleTypeProxy type) {
         addBaubleSlotMiddle(40, type);
     }
 
-    public void addBaubleSlotMiddle(int x, BaubleType type) {
+    public void addBaubleSlotMiddle(int x, BaubleTypeProxy type) {
         addBaubleSlot(x, CustomGui.cy + 26, type);
     }
 
-    public void addBaubleSlot(int x, int y, BaubleType type) {
+    public void addBaubleSlot(int x, int y, BaubleTypeProxy type) {
         if (indexMap.containsKey(baubles)) {
             int index = indexMap.get(baubles);
             addBaubleSlot(x, y, index, type, baubles);
@@ -48,7 +49,7 @@ public class CustomizableBaublesContainer extends AbstractContainer {
     }
 
 
-    public void addBaubleSlot(int Xoffset, int Yoffset, int ID, BaubleType type, IInventory inventory) {
+    public void addBaubleSlot(int Xoffset, int Yoffset, int ID, BaubleTypeProxy type, IInventory inventory) {
         if (inventory == null) {
             if (world.isRemote) return;
             MagCore.logger.log(Level.ERROR, StatCollector.translateToLocalFormatted("exception.nullcontainer", ID));
@@ -58,7 +59,7 @@ public class CustomizableBaublesContainer extends AbstractContainer {
             MagCore.logger.log(Level.ERROR, StatCollector.translateToLocalFormatted("exception.outofcontainer", ID));
             return;
         }
-        this.addSlotToContainer(new BaubleSlot(inventory, ID, Xoffset, Yoffset, type));
+        this.addSlotToContainer(new SlotBauble(inventory, type.getOldtype(), ID, Xoffset, Yoffset));
     }
 
     @Override
@@ -75,7 +76,7 @@ public class CustomizableBaublesContainer extends AbstractContainer {
         super.putStacksInSlots(p_75131_1_);
     }
 
-    private void unequipBauble(ItemStack stack) {
+    public void unequipBauble(ItemStack stack) {
         if (stack.getItem() instanceof IBauble) {
             ((IBauble) stack.getItem()).onUnequipped(stack, thePlayer);
         }
@@ -100,13 +101,11 @@ public class CustomizableBaublesContainer extends AbstractContainer {
                 if (itemstack1 != null && itemstack1.getItem() == itemStack.getItem() && (!itemStack.getHasSubtypes() || itemStack.getItemDamage() == itemstack1.getItemDamage()) && ItemStack.areItemStackTagsEqual(itemStack, itemstack1)) {
                     int l = itemstack1.stackSize + itemStack.stackSize;
                     if (l <= itemStack.getMaxStackSize()) {
-                        if (ss instanceof BaubleSlot) unequipBauble(itemStack);
                         itemStack.stackSize = 0;
                         itemstack1.stackSize = l;
                         slot.onSlotChanged();
                         flag1 = true;
                     } else if (itemstack1.stackSize < itemStack.getMaxStackSize()) {
-                        if (ss instanceof BaubleSlot) unequipBauble(itemStack);
                         itemStack.stackSize -= itemStack.getMaxStackSize() - itemstack1.stackSize;
                         itemstack1.stackSize = itemStack.getMaxStackSize();
                         slot.onSlotChanged();
@@ -133,8 +132,8 @@ public class CustomizableBaublesContainer extends AbstractContainer {
                 slot = (Slot) this.inventorySlots.get(k);
                 itemstack1 = slot.getStack();
 
-                if (itemstack1 == null) {
-                    if (ss instanceof BaubleSlot) unequipBauble(itemStack);
+                if (itemstack1 == null && slot.isItemValid(itemStack)) {
+//                    if(itemStack.getItem() instanceof IBauble) ((IBauble)itemStack.getItem()).onEquipped(itemStack, thePlayer);
                     slot.putStack(itemStack.copy());
                     slot.onSlotChanged();
                     itemStack.stackSize = 0;
@@ -150,5 +149,9 @@ public class CustomizableBaublesContainer extends AbstractContainer {
             }
         }
         return flag1;
+    }
+
+    public int getindex(IInventory inv) {
+        return indexMap.get(inv);
     }
 }

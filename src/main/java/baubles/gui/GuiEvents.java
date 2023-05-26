@@ -10,7 +10,10 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.event.GuiScreenEvent;
 
+import java.lang.reflect.Method;
+
 public class GuiEvents {
+    static Method isNEIHidden;
 
     @SideOnly(value = Side.CLIENT)
     @SuppressWarnings("all")
@@ -25,10 +28,13 @@ public class GuiEvents {
             int guiLeft = (event.gui.width - xSize) / 2;
             int guiTop = (event.gui.height - ySize) / 2;
 
-            if (event.gui instanceof GuiInventory)
+
+            if (event.gui instanceof GuiInventory) {
+                if (!event.gui.mc.thePlayer.getActivePotionEffects().isEmpty() && isNeiHidden())
+                    guiLeft = 160 + (event.gui.width - xSize - 200) / 2;
                 event.buttonList.add(new GuiBaublesButton(55, guiLeft + 66, guiTop + 9, 10, 10, I18n.format("button.baubles")));
-            else
-                event.buttonList.add(new GuiBaublesButton(55, guiLeft + BaublesGui.playerX+36, guiTop + BaublesGui.playerY, 10, 10, I18n.format("button.normal")));
+            } else
+                event.buttonList.add(new GuiBaublesButton(55, guiLeft + BaublesGui.playerX + 36, guiTop + BaublesGui.playerY, 10, 10, I18n.format("button.normal")));
         }
 
     }
@@ -49,5 +55,17 @@ public class GuiEvents {
                 PacketHandler.INSTANCE.sendToServer(new PacketOpenNormalInventory(event.gui.mc.thePlayer));
             }
         }
+    }
+
+    public static boolean isNeiHidden() {
+        boolean hidden = true;
+        try {
+            if (isNEIHidden == null) {
+                Class<?> fake = Class.forName("codechicken.nei.NEIClientConfig");
+                isNEIHidden = fake.getMethod("isHidden");
+            }
+            hidden = (Boolean) isNEIHidden.invoke(null, new Object[0]);
+        } catch (Exception ignored) {}
+        return hidden;
     }
 }

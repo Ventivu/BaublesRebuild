@@ -14,3 +14,17 @@ baubles.message.loadbackup=Data not found for %s. Trying to load backup data.
 baubles.message.loaderror=Backup data not found for %s.
 baubles.message.savebackuperror=Error saving backup data for %s.
 baubles.message.saveerror=Error saving data for %s.
+
+#Configuration
+Baubles.Config.desc.category.general=General
+Baubles.Config.desc.category.general.tooltip=Configurations that play a decisive role
+
+Baubles.Config.desc.SplitSurvivalCreative=SplitSurvivalCreative
+Baubles.Config.desc.SplitSurvivalCreative.tooltip=Enable to separate and store items in different game modes
+Baubles.Config.desc.slots=Baubles slots Setting
+Baubles.Config.desc.slots.tooltip=Set the number of bauble slots and the attributes of each slot
+
+btnType.AMULET=Amulet
+btnType.BELT=Belt
+btnType.RING=Ring
+btnType.ANY=Any Bauble

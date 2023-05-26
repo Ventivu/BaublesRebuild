@@ -1,41 +1,36 @@
 package baubles.gui;
 
+import baubles.api.BaubleTypeProxy;
 import baubles.api.IBauble;
-import baubles.common.CommonProxy;
-import baubles.common.Config;
-import com.ventivu.core.GuiFactory.AbstractContainer;
-import com.ventivu.core.GuiFactory.CustomGui;
-import com.ventivu.core.GuiFactory.CustomizableGui;
+import baubles.common.Configuration.Configuration;
+import baubles.common.container.SlotBauble;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+import ventivu.core.GuiFactory.*;
 
 public class BaublesGui extends CustomGui {
-    public static int playerX = 3, playerY = 5;
+    public static int playerX = 7, playerY = 7;
 
-    public BaublesGui() {
-        super(CommonProxy.handler);
+    public BaublesGui(Guihandler handler) {
+        super(handler);
+    }
+
+    @Override
+    protected AbstractContainer getContainer(EntityPlayer player, World world, int x, int y, int z, CustomGui manager) {
+        return new CustomizableBaublesContainer(player, world, x, y, z, this);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    protected CustomizableGui creatGui(EntityPlayer player, World world, int x, int y, int z) {
-        AbstractContainer container=new CustomizableBaublesContainer(player,world,x,y,z,this);
-        containerConfig(container);
-        CustomizableGui gui = new CustomizableBaubleGui(container, world.getTileEntity(x,y,z), player);
-        guiConfig(gui);
-        return gui;
-    }
-
-    @Override
-    protected AbstractContainer creatContainer(EntityPlayer player, World world, int x, int y, int z) {
-        this.container = new CustomizableBaublesContainer(player, world, x, y, z, this);
-        this.tile = world.getTileEntity(x, y, z);
-        this.containerConfig(this.container);
-        return container;
+    protected CustomizableGui getGuiContainer(AbstractContainer container, @Nullable TileEntity entity, EntityLivingBase user) {
+        return new CustomizableBaubleGui(container, entity, user);
     }
 
     @Override
@@ -43,14 +38,19 @@ public class BaublesGui extends CustomGui {
         if (customizableContainer instanceof CustomizableBaublesContainer) {
             CustomizableBaublesContainer container = (CustomizableBaublesContainer) customizableContainer;
             container.addPlayerInventoryDefault();
-            if (Config.isDefaultMode()) UIController.apply(UIController.example(), container);
-            else UIController.apply(Config.controller.storage, container);
+            double a=4;
+            int count = Configuration.getList().size();
+            for (int i = 0; i < Math.ceil(count / a); i++)
+                for (int j = 0; j < count-a*i&&j<a; j++) {
+                    BaubleTypeProxy type = Configuration.getList().get((int) (i * a + j));
+                    container.addBaubleSlot(48+BaublesGui.playerX+i*18, BaublesGui.playerY+1+j*18, type);
+                }
         }
     }
 
     @Override
     protected void guiConfig(CustomizableGui gui) {
-        gui.addPlayerModel(gui.getguiLeft() + playerX, gui.getguiTop() + playerY, true);
+        gui.addPlayerModel(playerX,playerY, true);
         gui.allowUserInput = true;
     }
 
@@ -60,31 +60,33 @@ public class BaublesGui extends CustomGui {
     }
 
     @Override
-    protected boolean canInteractWith(EntityPlayer entityPlayer, World world, int i, int i1, int i2) {
+    public boolean canInteractWith(EntityPlayer entityPlayer, World world, int i, int i1, int i2) {
         return true;
     }
 
     @Override
-    protected ItemStack transferStackInSlot(AbstractContainer container,EntityPlayer EntityPlayer, int slotID) {
-        ItemStack itemStacktemp=null;
+    protected ItemStack transferStackInSlot(AbstractContainer container, EntityPlayer EntityPlayer, int slotID) {
+        ItemStack itemStacktemp = null;
         Slot slot = (Slot) container.inventorySlots.get(slotID);
+        int playerslots = ((CustomizableBaublesContainer) container).getindex(container.inventory);
+        int baubleslots = ((CustomizableBaublesContainer) container).getindex(((CustomizableBaublesContainer) container).baubles);
 
-        if (slot != null && slot.getHasStack())
-        {
+        if (slot != null && slot.getHasStack()) {
             ItemStack itemstack = slot.getStack();
             itemStacktemp = itemstack.copy();
-            if (itemstack.getItem() instanceof IBauble) {
-                if (slot instanceof BaubleSlot) {
-                    if (!container.mergeItemStack(itemstack, 0, 35, false)) {
-                        return null;
-                    }
+            if (slot instanceof SlotBauble) {
+                if (!container.mergeItemStacks(itemstack, 0, playerslots, false)) return null;
+            } else if (itemstack.getItem() instanceof IBauble) {
+                if (!((CustomizableBaublesContainer) container).mergeItemStack(itemstack, playerslots, playerslots + baubleslots, false, slot)) {
+                    if (slotID < 9 && !container.mergeItemStacks(itemstack, 9, playerslots, false)) return null;
+                    else if (slotID >= 9 && !container.mergeItemStacks(itemstack, 0, 9, false)) return null;
                 }
-            }
+            } else if (slotID < 9 && !container.mergeItemStacks(itemstack, 9, playerslots, false)) return null;
+            else if (slotID >= 9 && !container.mergeItemStacks(itemstack, 0, 9, false)) return null;
 
             if (itemstack.stackSize == 0) {
                 slot.putStack(null);
-            }
-            else {
+            } else {
                 slot.onSlotChanged();
             }
 
@@ -95,67 +97,5 @@ public class BaublesGui extends CustomGui {
             slot.onPickupFromSlot(EntityPlayer, itemstack);
         }
         return itemStacktemp;
-
-
-        /*if (slot != null && slot.getHasStack()) {
-            ItemStack itemstack1 = slot.getStack();
-            itemstack = itemstack1.copy();
-
-            if (slotID >= 1 && slotID < 9) {
-                if (!container.mergeItemStack(itemstack1, 9 + 4, 45 + 4, false)) {
-                    return null;
-                }
-            } else if (itemstack.getItem() instanceof ItemArmor && !((Slot) container.inventorySlots.get(5 + ((ItemArmor) itemstack.getItem()).armorType)).getHasStack()) {
-                int j = 5 + ((ItemArmor) itemstack.getItem()).armorType;
-
-                if (!container.mergeItemStack(itemstack1, j, j + 1, false)) {
-                    return null;
-                }
-            } else if (itemstack.getItem() instanceof IBauble && ((IBauble) itemstack.getItem()).getBaubleType(itemstack) == BaubleType.AMULET && ((IBauble) itemstack.getItem()).canEquip(itemstack, EntityPlayer) && !((Slot) container.inventorySlots.get(9)).getHasStack()) {
-                int j = 9;
-                if (!container.mergeItemStack(itemstack1, j, j + 1, false)) {
-                    return null;
-                }
-            } else if (slotID > 11 && itemstack.getItem() instanceof IBauble && ((IBauble) itemstack.getItem()).getBaubleType(itemstack) == BaubleType.RING && ((IBauble) itemstack.getItem()).canEquip(itemstack, EntityPlayer) && !((Slot) container.inventorySlots.get(10)).getHasStack()) {
-                int j = 10;
-                if (!container.mergeItemStack(itemstack1, j, j + 1, false)) {
-                    return null;
-                }
-            } else if (slotID > 11 && itemstack.getItem() instanceof IBauble && ((IBauble) itemstack.getItem()).getBaubleType(itemstack) == BaubleType.RING && ((IBauble) itemstack.getItem()).canEquip(itemstack, EntityPlayer) && !((Slot) container.inventorySlots.get(11)).getHasStack()) {
-                int j = 11;
-                if (!container.mergeItemStack(itemstack1, j, j + 1, false)) {
-                    return null;
-                }
-            } else if (itemstack.getItem() instanceof IBauble && ((IBauble) itemstack.getItem()).getBaubleType(itemstack) == BaubleType.BELT && ((IBauble) itemstack.getItem()).canEquip(itemstack, EntityPlayer) && !((Slot) container.inventorySlots.get(12)).getHasStack()) {
-                int j = 12;
-                if (!container.mergeItemStack(itemstack1, j, j + 1, false)) {
-                    return null;
-                }
-            } else if (slotID >= 9 + 4 && slotID < 36 + 4) {
-                if (!container.mergeItemStack(itemstack1, 36 + 4, 45 + 4, false)) {
-                    return null;
-                }
-            } else if (slotID >= 36 + 4 && slotID < 45 + 4) {
-                if (!container.mergeItemStack(itemstack1, 9 + 4, 36 + 4, false)) {
-                    return null;
-                }
-            } else if (!container.mergeItemStack(itemstack1, 9 + 4, 45 + 4, false, slot)) {
-                return null;
-            }
-
-            if (itemstack1.stackSize == 0) {
-                slot.putStack(null);
-            } else {
-                slot.onSlotChanged();
-            }
-
-            if (itemstack1.stackSize == itemstack.stackSize) {
-                return null;
-            }
-
-            slot.onPickupFromSlot(EntityPlayer, itemstack1);
-        }
-
-        return itemstack;*/
     }
 }

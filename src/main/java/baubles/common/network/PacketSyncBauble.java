@@ -19,10 +19,8 @@ public class PacketSyncBauble implements IMessage, IMessageHandler<PacketSyncBau
 	
 	int slot;
 	int playerId;
-	ItemStack bauble=null;
-	
-	public PacketSyncBauble() {}
-	
+	ItemStack bauble;
+
 	public PacketSyncBauble(EntityPlayer player, int slot) {
 		this.slot = slot;
 		this.bauble = PlayerHandler.getPlayerBaubles(player).getStackInSlot(slot);
@@ -56,6 +54,4 @@ public class PacketSyncBauble implements IMessage, IMessageHandler<PacketSyncBau
 		}
 		return null;
 	}
-
-
 }

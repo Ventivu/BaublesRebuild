@@ -5,15 +5,17 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 
-import baubles.common.Config;
+import baubles.common.Configuration.Configuration;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import baubles.common.Baubles;
 import baubles.common.container.InventoryBaubles;
 
 import com.google.common.io.Files;
+import net.minecraft.util.StatCollector;
 
 public class PlayerHandler {
 
@@ -24,11 +26,15 @@ public class PlayerHandler {
     }
 
     public static InventoryBaubles getPlayerBaubles(EntityPlayer player) {
+        int size = Configuration.getList().size();
         if (!playerBaubles.containsKey(player.getCommandSenderName())) {
-            InventoryBaubles inventory = new InventoryBaubles(player, Config.controller.storage.baubleSlots.size());
+            InventoryBaubles inventory = new InventoryBaubles(player, size);
             playerBaubles.put(player.getCommandSenderName(), inventory);
         }
-        return playerBaubles.get(player.getCommandSenderName());
+
+        InventoryBaubles inv = playerBaubles.get(player.getCommandSenderName());
+        if (inv.stackList.length != size) inv.stackList = new ItemStack[size];
+        return inv;
     }
 
     public static void setPlayerBaubles(EntityPlayer player, InventoryBaubles inventory) {
@@ -51,7 +57,7 @@ public class PlayerHandler {
                 }
 
                 if (file1 == null || !file1.exists() || data == null || data.hasNoTags()) {
-                    Baubles.log.warn(I18n.format("baubles.message.loadbackup", player.getCommandSenderName()));
+                    Baubles.log.warn(StatCollector.translateToLocalFormatted("baubles.message.loadbackup", player.getCommandSenderName()));
                     if (file2 != null && file2.exists()) {
                         try {
                             FileInputStream fileinputstream = new FileInputStream(file2);
@@ -65,7 +71,7 @@ public class PlayerHandler {
                 }
 
                 if (data != null) {
-                    InventoryBaubles inventory = new InventoryBaubles(player, Config.controller.storage.baubleSlots.size());
+                    InventoryBaubles inventory = new InventoryBaubles(player, Configuration.getList().size());
                     inventory.readNBT(data);
                     playerBaubles.put(player.getCommandSenderName(), inventory);
                     if (save) savePlayerBaubles(player, file1, file2);
@@ -106,7 +112,8 @@ public class PlayerHandler {
                     if (file1.exists()) {
                         try {
                             file1.delete();
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
             } catch (Exception exception1) {
@@ -119,7 +126,7 @@ public class PlayerHandler {
     public static void refreshPlayerBaubles() {
         for (String name : playerBaubles.keySet()) {
             InventoryBaubles inv = playerBaubles.get(name);
-            inv.refresh(Config.controller.storage.baubleSlots.size());
+            inv.refresh(Configuration.getList().size());
         }
     }
 }

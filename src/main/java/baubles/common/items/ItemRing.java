@@ -2,11 +2,9 @@ package baubles.common.items;
 
 import baubles.api.BaubleType;
 import baubles.api.IBauble;
-import baubles.common.Baubles;
+import baubles.common.NameSpace;
 import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
-import com.ventivu.core.Core.Register.ItemBase;
-import com.ventivu.core.MagCore;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.creativetab.CreativeTabs;
@@ -18,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
+import ventivu.core.Core.Register.ItemBase;
 
 import java.util.List;
 
@@ -107,12 +106,7 @@ public class ItemRing  extends ItemBase implements IBauble
 	}
 
 	@Override
-	protected CreativeTabs getTab() {
-		return MagCore.coreTab;
-	}
-
-	@Override
-	protected String getModID() {
-		return Baubles.MODID;
+	public String getModID() {
+		return NameSpace.ModID;
 	}
 }

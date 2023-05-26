@@ -1,13 +1,9 @@
 package baubles.common;
 
-import java.io.File;
-
-import baubles.gui.BaublesGui;
-import net.minecraftforge.common.MinecraftForge;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import baubles.asm.BaubleBoxFix;
+import baubles.asm.InvBaubleBoxFix;
+import baubles.asm.ThaumShieldFix;
+import baubles.common.Configuration.Configuration;
 import baubles.common.event.EventHandlerEntity;
 import baubles.common.event.EventHandlerNetwork;
 import baubles.common.network.PacketHandler;
@@ -16,44 +12,38 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLConstructionEvent;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
+import net.minecraftforge.common.MinecraftForge;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import ventivu.core.ASM.ASMManager;
+import ventivu.core.MagCore;
 
-@Mod(modid = Baubles.MODID, name = Baubles.MODNAME, version = Baubles.VERSION, dependencies = "required-after:Forge@[10.13.2,);")
+import static baubles.common.NameSpace.MagCoreVersion;
+
+@Mod(modid = NameSpace.ModID, name = NameSpace.ModName, version = NameSpace.ModVersion, guiFactory = NameSpace.GuiFactory, dependencies = "required-after:magcore@[" + MagCoreVersion + ",);required-after:Forge@[10.13.2,);")
 
 public class Baubles {
-
-    public static final String MODID = "Baubles";
-    public static final String MODNAME = "Baubles Rebuild";
-    public static final String VERSION = "1.0.2 Pre";
-
+    public static final Logger log = LogManager.getLogger(NameSpace.ModID);
     @SidedProxy(clientSide = "baubles.client.ClientProxy", serverSide = "baubles.common.CommonProxy")
     public static CommonProxy proxy;
-
-    @Instance(value = Baubles.MODID)
+    @Instance(value = NameSpace.ModID)
     public static Baubles instance;
-
     public EventHandlerEntity entityEventHandler;
     public EventHandlerNetwork entityEventNetwork;
-    public File modDir;
 
-    public static final Logger log = LogManager.getLogger("Baubles");
+    @EventHandler
+    public void construct(FMLConstructionEvent event) {
+        ASMManager.register(new ThaumShieldFix());
+        ASMManager.register(new InvBaubleBoxFix());
+        ASMManager.register(new BaubleBoxFix());
+    }
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        event.getModMetadata().version = Baubles.VERSION;
-        modDir = event.getModConfigurationDirectory();
-
-        try {
-            new Config();
-            Config.initialize();
-        } catch (Exception e) {
-            Baubles.log.error("BAUBLES has a problem loading it's configuration");
-        } finally {
-            Config.save();
-        }
+        new Configuration(event);
 
         PacketHandler.init();
 
@@ -62,21 +52,11 @@ public class Baubles {
 
         MinecraftForge.EVENT_BUS.register(entityEventHandler);
         FMLCommonHandler.instance().bus().register(entityEventNetwork);
-
-        /////////////////////
-
-        Config.save();
-
     }
 
     @EventHandler
     public void init(FMLInitializationEvent evt) {
         proxy.init();
+        MagCore.commandManager.provide(new Provider());
     }
-
-    @EventHandler
-    public void postInit(FMLPostInitializationEvent evt) {
-
-    }
-
 }

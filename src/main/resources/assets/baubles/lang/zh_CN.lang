@@ -11,3 +11,17 @@ baubles.message.loadbackup=玩家%s的数据未找到，尝试读取备份。
 baubles.message.loaderror=玩家%s的数据未找到，尝试读取备份失败。
 baubles.message.savebackuperror=保存玩家%s备份失败。
 baubles.message.saveerror=保存玩家%s数据失败。
+
+#Configuration
+Baubles.Config.desc.category.general=全局
+Baubles.Config.desc.category.general.tooltip=起到决定作用的配置项
+
+Baubles.Config.desc.SplitSurvivalCreative=分离创造模式饰品
+Baubles.Config.desc.SplitSurvivalCreative.tooltip=启用则使饰品栏分离存储不同游戏模式下的物品
+Baubles.Config.desc.slots=饰品格位设定
+Baubles.Config.desc.slots.tooltip=设定饰品格位的数量与每个格位的属性
+
+btnType.AMULET=护符
+btnType.BELT=腰带
+btnType.RING=指环
+btnType.ANY=任意
