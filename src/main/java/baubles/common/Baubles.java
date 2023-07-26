@@ -1,5 +1,6 @@
 package baubles.common;
 
+import baubles.api.BaubleType;
 import baubles.asm.BaubleBoxFix;
 import baubles.asm.InvBaubleBoxFix;
 import baubles.asm.ThaumShieldFix;
@@ -11,6 +12,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.ModAPIManager;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLConstructionEvent;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -21,15 +23,15 @@ import org.apache.logging.log4j.Logger;
 import ventivu.core.ASM.ASMManager;
 import ventivu.core.MagCore;
 
-import static baubles.common.NameSpace.MagCoreVersion;
+import static baubles.common.NameSpace.*;
 
-@Mod(modid = NameSpace.ModID, name = NameSpace.ModName, version = NameSpace.ModVersion, guiFactory = NameSpace.GuiFactory, dependencies = "required-after:magcore@[" + MagCoreVersion + ",);required-after:Forge@[10.13.2,);")
+@Mod(modid = ModID, name = ModName, version = ModVersion, guiFactory = GuiFactory, dependencies = "required-after:magcore@[" + MagCoreVersion + ",);required-after:Forge@[10.13.2,);")
 
 public class Baubles {
-    public static final Logger log = LogManager.getLogger(NameSpace.ModID);
+    public static final Logger log = LogManager.getLogger(ModID);
     @SidedProxy(clientSide = "baubles.client.ClientProxy", serverSide = "baubles.common.CommonProxy")
     public static CommonProxy proxy;
-    @Instance(value = NameSpace.ModID)
+    @Instance(ModID)
     public static Baubles instance;
     public EventHandlerEntity entityEventHandler;
     public EventHandlerNetwork entityEventNetwork;
@@ -52,6 +54,8 @@ public class Baubles {
 
         MinecraftForge.EVENT_BUS.register(entityEventHandler);
         FMLCommonHandler.instance().bus().register(entityEventNetwork);
+        ModAPIManager.INSTANCE.getAPIList();
+        System.out.println(BaubleType.ANY);
     }
 
     @EventHandler

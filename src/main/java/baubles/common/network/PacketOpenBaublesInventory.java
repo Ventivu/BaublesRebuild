@@ -22,7 +22,7 @@ public class PacketOpenBaublesInventory implements IMessage, IMessageHandler<Pac
 
 	@Override
 	public IMessage onMessage(PacketOpenBaublesInventory message, MessageContext ctx) {
-		ctx.getServerHandler().playerEntity.openGui(Baubles.instance, CommonProxy.bgui.getID(), ctx.getServerHandler().playerEntity.worldObj, (int)ctx.getServerHandler().playerEntity.posX, (int)ctx.getServerHandler().playerEntity.posY, (int)ctx.getServerHandler().playerEntity.posZ);
+		ctx.getServerHandler().playerEntity.openGui(Baubles.instance, CommonProxy.bgui.id, ctx.getServerHandler().playerEntity.worldObj, (int)ctx.getServerHandler().playerEntity.posX, (int)ctx.getServerHandler().playerEntity.posY, (int)ctx.getServerHandler().playerEntity.posZ);
 		return null;
 	}
 

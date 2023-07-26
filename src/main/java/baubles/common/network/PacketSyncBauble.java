@@ -20,6 +20,8 @@ public class PacketSyncBauble implements IMessage, IMessageHandler<PacketSyncBau
 	int slot;
 	int playerId;
 	ItemStack bauble;
+	public PacketSyncBauble() {
+	}
 
 	public PacketSyncBauble(EntityPlayer player, int slot) {
 		this.slot = slot;
@@ -29,7 +31,7 @@ public class PacketSyncBauble implements IMessage, IMessageHandler<PacketSyncBau
 
 	@Override
 	public void toBytes(ByteBuf buffer) {
-		buffer.writeByte(slot);
+		buffer.writeShort(slot);
 		buffer.writeInt(playerId);
 		PacketBuffer pb = new PacketBuffer(buffer);
 		try { pb.writeItemStackToBuffer(bauble); } catch (IOException ignored) {}
@@ -38,7 +40,7 @@ public class PacketSyncBauble implements IMessage, IMessageHandler<PacketSyncBau
 	@Override
 	public void fromBytes(ByteBuf buffer) 
 	{
-		slot = buffer.readByte();
+		slot = buffer.readShort();
 		playerId = buffer.readInt();
 		PacketBuffer pb = new PacketBuffer(buffer);
 		try { bauble = pb.readItemStackFromBuffer(); } catch (IOException ignored) {}

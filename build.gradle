@@ -46,7 +46,7 @@ mirrorstation {
 
 version = ModVersion
 archivesBaseName = ModName
-group = "Ventivu"
+group = "Ventivu.baubles"
 
 def props = new Properties()
 file("../MagCore/gradle.properties").withInputStream { props.load(it) }
@@ -75,10 +75,10 @@ dependencies {
     implementation 'org.jetbrains:annotations-java5:20.1.0'
     //implementation 'Ventivu:MagCore:' + coreversion
     implementation fileTree("Mods")
-    compileOnly fileTree("DepMods")
+    runtimeOnly fileTree("runtime")
     if (uselib) {
-        compileOnly files(complie)
-        runtimeOnly files(runtime)
+        //compileOnly files(complie)
+        implementation files(runtime)
     }
 }
 

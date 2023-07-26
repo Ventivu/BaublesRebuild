@@ -1,5 +1,6 @@
 package baubles.common.Configuration;
 
+import baubles.api.BaubleType;
 import baubles.api.BaubleTypeProxy;
 import baubles.common.NameSpace;
 import baubles.common.items.ItemRing;
@@ -44,10 +45,9 @@ public class Configuration extends ConfigFactory {
     public void initConfigs() {
         splitSurvivalCreative = fastSet(get("general", "SplitSurvivalCreative", false, "是否分离生存和创造模式的饰品栏"), Action.NONE).getBoolean();//save it
         String[] allows = new String[BaubleTypeProxy.values().length];
-
         for (int i = 0; i < allows.length; ++i)
             allows[i] = BaubleTypeProxy.values()[i].name();
-        String[] list = fastSet(getCycleList("slots", "general", new String[]{"AMULET", "RING", "RING", "BELT"}, "饰品栏各格位属性", allows).setMaxListLength(24), Action.NONE).getStringList();
+        String[] list = fastSet(getCycleList("slots", "general", new String[]{"AMULET", "RING", "RING", "BELT"}, "饰品栏各格位属性", allows), Action.NONE).getStringList();
         slots.clear();
         for (String s : list) {
             try {

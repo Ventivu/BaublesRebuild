@@ -34,7 +34,7 @@ public class GuiEvents {
                     guiLeft = 160 + (event.gui.width - xSize - 200) / 2;
                 event.buttonList.add(new GuiBaublesButton(55, guiLeft + 66, guiTop + 9, 10, 10, I18n.format("button.baubles")));
             } else
-                event.buttonList.add(new GuiBaublesButton(55, guiLeft + BaublesGui.playerX + 36, guiTop + BaublesGui.playerY, 10, 10, I18n.format("button.normal")));
+                event.buttonList.add(new GuiBaublesButton(55, guiLeft + 43, guiTop + 7, 10, 10, I18n.format("button.normal")));
         }
 
     }

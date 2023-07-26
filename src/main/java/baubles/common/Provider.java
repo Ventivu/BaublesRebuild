@@ -1,6 +1,5 @@
 package baubles.common;
 
-import ventivu.NameSpace;
 import ventivu.api.Registers.AbstractAutoRegister;
 import ventivu.api.Registers.IVersionProvider;
 

@@ -17,7 +17,7 @@ public class GuiBaublesButton extends GuiButton {
     public void drawButton(Minecraft mc, int xx, int yy) {
         if (this.visible) {
             FontRenderer fontrenderer = mc.fontRenderer;
-            mc.getTextureManager().bindTexture(BaubleTypeProxy.widgetTexture);
+            mc.getTextureManager().bindTexture(SlotBauble.texture);
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.field_146123_n = xx >= this.xPosition && yy >= this.yPosition && xx < this.xPosition + this.width && yy < this.yPosition + this.height;
             int k = this.getHoverState(this.field_146123_n);

@@ -4,18 +4,18 @@ package baubles.common;
 import baubles.common.event.KeyHandler;
 import baubles.gui.BaubleBoxGui;
 import baubles.gui.BaublesGui;
-import ventivu.core.GuiFactory.Guihandler;
 import net.minecraft.world.World;
+import ventivu.core.WindowFrame.WindowHandler;
 
 
 public class CommonProxy {
-    public static Guihandler handler;
+    public static WindowHandler handler;
     public KeyHandler keyHandler;
     public static BaublesGui bgui;
     public static BaubleBoxGui box;
 
     public void registerHandlers() {
-        handler = new Guihandler(Baubles.instance);
+        handler = new WindowHandler(Baubles.instance);
     }
 
     public World getClientWorld() {
@@ -29,7 +29,7 @@ public class CommonProxy {
         registerHandlers();
         registerKeyBindings();
         bgui =new BaublesGui(handler);
-        box=new BaubleBoxGui(handler);
+        //TODO:饰品盒子的重加工
     }
 
 }

@@ -5,6 +5,7 @@ item.Ring.0.name=矿工指环
 # GUI
 button.baubles=饰品
 button.normal=普通
+baubles.gui.page=第%d页/共%d页
 
 #new
 baubles.message.loadbackup=玩家%s的数据未找到，尝试读取备份。

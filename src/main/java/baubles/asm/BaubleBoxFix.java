@@ -27,7 +27,7 @@ public class BaubleBoxFix implements ASMBase {
                     node = node.getNext();
                     InsnList list = new InsnList();
                     list.add(new FieldInsnNode(Opcodes.GETSTATIC, Type.getInternalName(CommonProxy.class), "box", "Lbaubles/gui/BaubleBoxGui;"));
-                    list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, Type.getInternalName(BaubleBoxGui.class), "getID", "()I", false));
+                    list.add(new FieldInsnNode(Opcodes.GETFIELD, Type.getInternalName(BaubleBoxGui.class), "id", "I"));
                     method.instructions.insert(node, list);
                     method.instructions.remove(node);
                 }
