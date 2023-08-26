@@ -1,21 +1,27 @@
 package baubles.asm;
 
 import com.google.common.io.Files;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import org.apache.logging.log4j.Level;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import ventivu.core.Core.DeployError;
+import ventivu.core.Core.Reason;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.InputStream;
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
 
 public class BaubleTransFormer implements IFMLLoadingPlugin {
 
@@ -34,60 +40,71 @@ public class BaubleTransFormer implements IFMLLoadingPlugin {
         return null;
     }
 
+    /**
+     * API冲突修复程序
+     */
     @Override
     public void injectData(Map<String, Object> data) {
-        File folder = new File((File) data.get("mcLocation"), "mods");
+        List<File> files = new ArrayList<>();
         File me = (File) data.get("coremodLocation");
-        File[] mods = folder.listFiles(File::isFile);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        //生成jar列表
+        File folder = new File((File) data.get("mcLocation"), "mods");
+        File[] f = folder.listFiles(file -> file.getName().endsWith(".jar"));
+        if (f != null) files.addAll(Arrays.asList(f));
+        folder = new File(folder, "1.7.10");
+        if (folder.exists()) {
+            f = folder.listFiles(file -> file.getName().endsWith(".jar"));
+            if (f != null) files.addAll(Arrays.asList(f));
+        }
+        //生成API描述文件
         try (JarFile myjar = new JarFile(me)) {
-            if (mods != null && mods.length != 0) {
-                for (File mod : mods) {
-                    try (JarFile jar = new JarFile(mod)) {
-                        JarEntry entry = jar.getJarEntry("baubles/api");
-                        if (entry != null) {
-                            if (jar.getJarEntry("baubles/api/package-info.class") != null) continue;
-                            InputStream stream = myjar.getInputStream(myjar.getEntry("baubles/api/package-info.class"));
-                            ClassReader reader = new ClassReader(stream);
-                            ClassNode node = new ClassNode();
-                            reader.accept(node, 0);
-                            AnnotationNode annotation = node.visibleAnnotations.get(0);
-                            for (int i = 0; i < annotation.values.size(); i++)
-                                if ("apiVersion".equals(annotation.values.get(i)))
-                                    annotation.values.set(i + 1, "1.0.0.0");
-                            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-                            node.accept(cw);
+            InputStream stream = myjar.getInputStream(myjar.getEntry("baubles/api/package-info.class"));
+            ClassReader reader = new ClassReader(stream);
+            ClassNode node = new ClassNode();
+            reader.accept(node, 0);
+            AnnotationNode annotation = node.visibleAnnotations.get(0);
+            for (int i = 0; i < annotation.values.size(); i++)
+                if ("apiVersion".equals(annotation.values.get(i))) annotation.values.set(i + 1, "1.0.0.0");
+            node.accept(cw);
 
-                            File temp = File.createTempFile(mod.getName(), null, mod.getParentFile());
-                            temp.deleteOnExit();
-                            Files.copy(mod, temp);
-                            JarInputStream source = new JarInputStream(java.nio.file.Files.newInputStream(temp.toPath()));
-                            JarOutputStream jos = new JarOutputStream(java.nio.file.Files.newOutputStream(mod.toPath()));
-                            JarEntry e;
-                            while ((e=source.getNextJarEntry())!=null) {
-                                jos.putNextEntry(e);
-                                byte[] code=new byte[1024];
-                                int length;
-                                while ((length=source.read(code))>0)
-                                    jos.write(code,0,length);
-                            }
-
-                            JarEntry out = new JarEntry("baubles/api/package-info.class");
-                            jos.putNextEntry(out);
-                            jos.write(cw.toByteArray());
-                            jos.closeEntry();
-                            jos.close();
-                            source.close();
-                            temp.delete();
-                        }
-                    } catch (Exception e) {
-                        System.out.printf("读取文件%s异常\n", mod);
-                        e.printStackTrace();
-                    }
-                }
-            }
         } catch (Exception e) {
-            System.out.println("为什么读取不了自己?");
-            e.printStackTrace();
+            FMLLog.log(Level.ERROR, e, "为什么读取不了自己?");
+        }
+        //搜索全部包含API但不含描述文件的jar并修改
+        for (File mod : files) {
+            try (JarFile jar = new JarFile(mod)) {
+                JarEntry entry = jar.getJarEntry("baubles/api");
+                if (entry != null) {
+                    if (jar.getJarEntry("baubles/api/package-info.class") != null) continue;
+
+                    File temp = File.createTempFile(mod.getName(), null, mod.getParentFile());
+                    Files.copy(mod, temp);
+                    JarInputStream source = new JarInputStream(java.nio.file.Files.newInputStream(mod.toPath()));
+                    JarOutputStream jos = new JarOutputStream(java.nio.file.Files.newOutputStream(temp.toPath()));
+                    ZipEntry e;
+                    while ((e = source.getNextEntry()) != null) {
+                        e = new JarEntry(e.getName());
+                        jos.putNextEntry(e);
+                        byte[] code = new byte[1024];
+                        int length;
+                        while ((length = source.read(code)) >= 0) jos.write(code, 0, length);
+                    }
+
+                    JarEntry out = new JarEntry("baubles/api/package-info.class");
+                    jos.putNextEntry(out);
+                    jos.write(cw.toByteArray());
+                    jos.closeEntry();
+                    jos.close();
+                    source.close();
+
+                    jar.close();
+                    if(!mod.delete())throw new DeployError(Reason.LoadError);
+                    temp.renameTo(mod);
+                }
+            } catch (Exception e) {
+                FMLLog.log(Level.ERROR, e, "读取文件%s异常", mod);
+            }
         }
     }
 

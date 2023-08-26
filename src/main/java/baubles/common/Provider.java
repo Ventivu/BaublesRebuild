@@ -1,7 +1,7 @@
 package baubles.common;
 
-import ventivu.api.Registers.AbstractAutoRegister;
-import ventivu.api.Registers.IVersionProvider;
+import ventivu.core.Core.Commands.AbstractAutoRegister;
+import ventivu.core.Core.Commands.IVersionProvider;
 
 public class Provider extends AbstractAutoRegister implements IVersionProvider {
     @Override

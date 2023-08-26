@@ -1,6 +1,6 @@
 package baubles.common.container;
 
-import baubles.api.BaubleTypeProxy;
+import baubles.api.BaubleType;
 import baubles.api.IBauble;
 import baubles.common.Baubles;
 import baubles.common.Configuration.Configuration;
@@ -23,14 +23,10 @@ import java.util.Arrays;
 
 public class InventoryBaubles implements IInventory {
     public ItemStack[] stackList;
-    private Container eventHandler;
     public WeakReference<EntityPlayer> player;
     public boolean blockEvents = false;
-    public ArrayList<ItemStack> cache= new ArrayList<>();
-
-    public InventoryBaubles(EntityPlayer player) {
-        this(player, BaubleTypeProxy.values().length);
-    }
+    public ArrayList<ItemStack> cache = new ArrayList<>();
+    private Container eventHandler;
 
     public InventoryBaubles(EntityPlayer player, int size) {
         this.stackList = new ItemStack[size];
@@ -198,7 +194,7 @@ public class InventoryBaubles implements IInventory {
     public boolean isItemValidForSlot(int i, ItemStack stack) {
         if (stack == null || !(stack.getItem() instanceof IBauble) || !((IBauble) stack.getItem()).canEquip(stack, player.get()))
             return false;
-        return Configuration.getList().get(i) == BaubleTypeProxy.ANY || Configuration.getList().get(i).getOldtype() == ((IBauble) stack.getItem()).getBaubleType(stack);
+        return Configuration.getList().get(i) == BaubleType.ANY || Configuration.getList().get(i) == ((IBauble) stack.getItem()).getBaubleType(stack);
     }
 
     public void saveNBT(EntityPlayer player) {
@@ -208,7 +204,7 @@ public class InventoryBaubles implements IInventory {
 
     public void saveNBT(NBTTagCompound tags) {
         NBTTagList tagList = new NBTTagList();
-        NBTTagList cacheList= new NBTTagList();
+        NBTTagList cacheList = new NBTTagList();
         for (int i = 0; i < this.stackList.length; ++i) {
             if (this.stackList[i] != null) {
                 NBTTagCompound invSlot = new NBTTagCompound();
@@ -219,7 +215,7 @@ public class InventoryBaubles implements IInventory {
         }
         tags.setTag("Baubles.Inventory", tagList);
 
-        if(cache==null||cache.isEmpty())return;
+        if (cache == null || cache.isEmpty()) return;
         for (ItemStack stack : this.cache) {
             if (stack != null) {
                 NBTTagCompound invSlot = new NBTTagCompound();
@@ -299,13 +295,13 @@ public class InventoryBaubles implements IInventory {
         }
     }
 
-    public void syncContainerToClients(){
+    public void syncContainerToClients() {
         try {
-        if (Baubles.proxy.getClientWorld() == null)
-            PacketHandler.INSTANCE.sendToAll(new PacketSyncSlots());
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+            if (Baubles.proxy.getClientWorld() == null)
+                PacketHandler.INSTANCE.sendToAll(new PacketSyncSlots());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -327,8 +323,8 @@ public class InventoryBaubles implements IInventory {
             cache.addAll(Arrays.asList(stackList).subList(min, stackList.length));
         }
         stackList = newStack;
-        if(player.get() != null&&!cache.isEmpty()) {
-            ItemStack[] stacks=cache.toArray(new ItemStack[0]);
+        if (player.get() != null && !cache.isEmpty()) {
+            ItemStack[] stacks = cache.toArray(new ItemStack[0]);
             for (ItemStack stack : stacks) {
                 EntityItem ei = new EntityItem(player.get().worldObj, player.get().posX, player.get().posY + player.get().eyeHeight, player.get().posZ, stack.copy());
                 ei.delayBeforeCanPickup = 40;

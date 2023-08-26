@@ -5,7 +5,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import ventivu.core.Utils.IFunctions;
+import ventivu.core.Utils.IFuncCallBack;
+import ventivu.core.Utils.IFuncVoid;
 import ventivu.core.WindowFrame.GuiWindow;
 import ventivu.core.WindowFrame.Widgets.TextWidget;
 import ventivu.core.WindowFrame.Widgets.WidgetContainer;
@@ -44,7 +45,7 @@ public class FlippableSlotsPack {
      * @param container 将要加入该系列组的容器
      * @param func      返回下一个将被加入的物品格, 参数:X坐标,Y坐标,结束返回null
      */
-    public void genSlotsWithLimit(WindowContainer container, IFunctions.IFunctionValues<SlotWidget> func) {
+    public void genSlotsWithLimit(WindowContainer container, IFuncCallBack.Unspecified<SlotWidget> func) {
         SlotWidget widget;
         boolean show = true;
         int x = 0, y = 0;
@@ -87,11 +88,11 @@ public class FlippableSlotsPack {
             int wid = (int) (width * 0.15);
             IWidget widget = new ButtonWidget(499, 0, 0, wid, 15, "<");
             ((ButtonWidget) widget).setEnable(false);
-            ((ButtonWidget) widget).setClientOnly(me -> ((ButtonWidget) me[0]).setEnable(((WindowContainer) window.inventorySlots).tag.getInteger("page") > 1));
+            ((ButtonWidget) widget).setClientOnly(me -> me.setEnable(((WindowContainer) window.inventorySlots).tag.getInteger("page") > 1));
 
             container.addWidget(widget);
             widget = new ButtonWidget(501, width - wid, 0, wid, 15, ">");
-            ((ButtonWidget) widget).setClientOnly(me -> ((ButtonWidget) me[0]).setEnable(((WindowContainer) window.inventorySlots).tag.getInteger("page") < max));
+            ((ButtonWidget) widget).setClientOnly(me -> me.setEnable(((WindowContainer) window.inventorySlots).tag.getInteger("page") < max));
 
             container.addWidget(widget);
             widget = new TextWidget("page", width / 2, 10, "baubles.gui.page");
@@ -110,11 +111,11 @@ public class FlippableSlotsPack {
         });
     }
 
-    public void addButtonFuncs(Map<Integer, IFunctions.IFunctionValueVoid> funcMap) {
+    public void addButtonFuncs(Map<Integer, IFuncVoid.Single<WindowContainer>> funcMap) {
         int size = this.width * this.height;
 
         funcMap.put(499, data -> {
-            CustomizableBaublesContainer container = (CustomizableBaublesContainer) data[0];
+            ContainerBaubles container = (ContainerBaubles) data;
             List<SlotBauble> slots = new ArrayList<>();
             container.inventorySlots.stream().filter(slot -> slot instanceof SlotBauble && ((SlotBauble) slot).isSameGroup(groupID)).forEach(slot -> slots.add((SlotBauble) slot));
             int page = container.tag.getInteger("page");
@@ -128,7 +129,7 @@ public class FlippableSlotsPack {
         });
 
         funcMap.put(501, data -> {
-            CustomizableBaublesContainer container = (CustomizableBaublesContainer) data[0];
+            ContainerBaubles container = (ContainerBaubles) data;
             List<SlotBauble> slots = new ArrayList<>();
             container.inventorySlots.stream().filter(slot -> slot instanceof SlotBauble && ((SlotBauble) slot).isSameGroup(groupID)).forEach(slot -> slots.add((SlotBauble) slot));
             int page = container.tag.getInteger("page");

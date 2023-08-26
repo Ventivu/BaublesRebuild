@@ -5,18 +5,16 @@ import baubles.common.Configuration.Configuration;
 import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import ventivu.core.WindowFrame.Widgets.base.SlotWidget;
 import ventivu.core.WindowFrame.Window;
 import ventivu.core.WindowFrame.WindowContainer;
 
-public class CustomizableBaublesContainer extends WindowContainer {
+public class ContainerBaubles extends WindowContainer {
     public InventoryBaubles baubles;
     private EntityPlayer thePlayer;
 
-    public CustomizableBaublesContainer(Window window, EntityPlayer player, World world, int x, int y, int z) {
+    public ContainerBaubles(Window window, EntityPlayer player, World world, int x, int y, int z) {
         super(window, player, world, x, y, z);
     }
 

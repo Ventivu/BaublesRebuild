@@ -1,5 +1,5 @@
 package baubles.api;
 
 public enum BaubleType {
-    RING, AMULET, BELT,ANY
+    RING, AMULET, BELT, ANY
 }

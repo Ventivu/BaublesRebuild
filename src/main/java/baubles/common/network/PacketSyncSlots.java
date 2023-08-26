@@ -1,6 +1,6 @@
 package baubles.common.network;
 
-import baubles.api.BaubleTypeProxy;
+import baubles.api.BaubleType;
 import baubles.common.Configuration.Configuration;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PacketSyncSlots implements IMessage, IMessageHandler<PacketSyncSlots, IMessage> {
-    List<BaubleTypeProxy> list = new ArrayList<>();
+    List<BaubleType> list = new ArrayList<>();
 
     @Override
     public void toBytes(ByteBuf buffer) {
@@ -40,11 +40,12 @@ public class PacketSyncSlots implements IMessage, IMessageHandler<PacketSyncSlot
     }
 
     /**
-     *将服务端的物品栏信息保存为字节流，每个byte装入4个格位(分辨类型需要2字的数据)
+     * 将服务端的物品栏信息保存为字节流，每个byte装入4个格位(分辨类型需要2字的数据)
+     *
      * @param list 将被打包的格位列表
      * @return 打包好的字节组
      */
-    private byte[] praseTo(List<BaubleTypeProxy> list) {
+    private byte[] praseTo(List<BaubleType> list) {
         byte[] code = new byte[(int) Math.ceil(list.size() / 4d)];
         for (int i = 0; i < list.size(); i++)
             code[i / 4] |= (list.get(i).ordinal() << ((i % 4) * 2));
@@ -54,14 +55,15 @@ public class PacketSyncSlots implements IMessage, IMessageHandler<PacketSyncSlot
 
     /**
      * 从字节组中读取打包的格位信息，并在最后删减无效空间带来的错误
-     * @param code 被打包的字节组
+     *
+     * @param code   被打包的字节组
      * @param length 有效的组长度
      * @return 解包后的格位信息表
      */
-    private List<BaubleTypeProxy> readFrom(byte[] code, int length) {
-        List<BaubleTypeProxy> out = new ArrayList<>();
+    private List<BaubleType> readFrom(byte[] code, int length) {
+        List<BaubleType> out = new ArrayList<>();
         for (byte b : code)
-            for (int i = 0; i < 8; i += 2) out.add(BaubleTypeProxy.values()[b >> i & 3]);
+            for (int i = 0; i < 8; i += 2) out.add(BaubleType.values()[b >> i & 3]);
         if (out.size() > length) out.subList(length, out.size()).clear();
         return out;
     }

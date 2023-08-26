@@ -1,25 +1,30 @@
 {
   "AMULET": {
-    "U": 16,
-    "V": 0,
+    "U": 18,
     "width": 18,
     "height": 18
   },
   "RING": {
-    "U": 32,
-    "V": 0,
+    "U": 36,
     "width": 18,
     "height": 18
   },
   "BELT": {
-    "U": 0,
-    "V": 0,
     "width": 18,
     "height": 18
   },
   "ANY": {
-    "U": 0,
-    "V": 16,
+    "V": 18,
+    "width": 18,
+    "height": 18
+  },
+  "BUTTON_O": {
+    "U": 54,
+    "width": 18,
+    "height": 18
+  },
+  "BUTTON_I": {
+    "U": 72,
     "width": 18,
     "height": 18
   }

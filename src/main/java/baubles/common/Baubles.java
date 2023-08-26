@@ -1,9 +1,7 @@
 package baubles.common;
 
 import baubles.api.BaubleType;
-import baubles.asm.BaubleBoxFix;
-import baubles.asm.InvBaubleBoxFix;
-import baubles.asm.ThaumShieldFix;
+import baubles.asm.Register;
 import baubles.common.Configuration.Configuration;
 import baubles.common.event.EventHandlerEntity;
 import baubles.common.event.EventHandlerNetwork;
@@ -20,7 +18,6 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ventivu.core.ASM.ASMManager;
 import ventivu.core.MagCore;
 
 import static baubles.common.NameSpace.*;
@@ -38,9 +35,7 @@ public class Baubles {
 
     @EventHandler
     public void construct(FMLConstructionEvent event) {
-        ASMManager.register(new ThaumShieldFix());
-        ASMManager.register(new InvBaubleBoxFix());
-        ASMManager.register(new BaubleBoxFix());
+        Register.regAll();
     }
 
     @EventHandler
@@ -54,8 +49,6 @@ public class Baubles {
 
         MinecraftForge.EVENT_BUS.register(entityEventHandler);
         FMLCommonHandler.instance().bus().register(entityEventNetwork);
-        ModAPIManager.INSTANCE.getAPIList();
-        System.out.println(BaubleType.ANY);
     }
 
     @EventHandler

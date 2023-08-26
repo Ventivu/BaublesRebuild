@@ -1,21 +1,20 @@
 package baubles.common.lib;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.HashMap;
-
+import baubles.common.Baubles;
 import baubles.common.Configuration.Configuration;
+import baubles.common.container.InventoryBaubles;
+import com.google.common.io.Files;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import baubles.common.Baubles;
-import baubles.common.container.InventoryBaubles;
-
-import com.google.common.io.Files;
 import net.minecraft.util.StatCollector;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.HashMap;
 
 public class PlayerHandler {
 

@@ -1,7 +1,6 @@
 package baubles.gui;
 
 import baubles.api.BaubleType;
-import baubles.api.BaubleTypeProxy;
 import baubles.api.IBauble;
 import baubles.common.container.InventoryBaubles;
 import net.minecraft.client.gui.FontRenderer;
@@ -13,6 +12,7 @@ import ventivu.core.WindowFrame.GuiWindow;
 import ventivu.core.WindowFrame.WidgetBorder;
 import ventivu.core.WindowFrame.Widgets.base.SlotWidget;
 
+import static baubles.api.BaubleType.ANY;
 import static ventivu.core.WindowFrame.GuiRenderUtils.*;
 import static ventivu.core.WindowFrame.Widgets.base.WindowWidget.widgetTexture;
 
@@ -34,20 +34,24 @@ public class SlotBauble extends SlotWidget {
         bindTexture(widgetTexture);
         drawTexturedModalRect(renderX, renderY, 0, 0, 18, 18, 0);
         bindTexture(texture);
-        if (!getHasStack() || type != null) {
-            WidgetBorder border = borderSet.get(BaubleTypeProxy.getType(type).name());
+        if (!getHasStack() && type != null) {
+            WidgetBorder border = borderSet.get(type.name());
             drawColoredModalRect(renderX, renderY, border.getU(), border.getV(), 18, 18, border.getWidth(), border.getHeight(), 0, 0x78787846);
         }
     }
 
     @Override
     public boolean isItemValid(ItemStack stack) {
-        return !(inventory instanceof InventoryBaubles) || stack != null && stack.getItem() != null && stack.getItem() instanceof IBauble && (BaubleTypeProxy.getType(this.type) == BaubleTypeProxy.ANY || ((IBauble) stack.getItem()).getBaubleType(stack) == this.type) && ((IBauble) stack.getItem()).canEquip(stack, ((InventoryBaubles) this.inventory).player.get());
+        return !(inventory instanceof InventoryBaubles) || stack != null && stack.getItem() != null && stack.getItem() instanceof IBauble && (this.type == ANY || ((IBauble) stack.getItem()).getBaubleType(stack) == this.type) && ((IBauble) stack.getItem()).canEquip(stack, ((InventoryBaubles) this.inventory).player.get());
     }
 
     @Override
     public boolean canTakeStack(EntityPlayer player) {
-        return this.getStack() != null && ((IBauble) this.getStack().getItem()).canUnequip(this.getStack(), player);
+        if (this.getStack() != null) {
+            if (this.getStack().getItem() instanceof IBauble)
+                return ((IBauble) this.getStack().getItem()).canUnequip(this.getStack(), player);
+        }
+        return true;
     }
 
     @Override

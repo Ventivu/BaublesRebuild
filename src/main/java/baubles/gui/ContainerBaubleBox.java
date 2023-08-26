@@ -1,5 +1,6 @@
 package baubles.gui;
 
+import baubles.common.Configuration.Configuration;
 import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,17 +15,17 @@ public class ContainerBaubleBox extends WindowContainer {
     public InventoryBaubles baubles;
 
     public ContainerBaubleBox(Window window, EntityPlayer player, World world, int x, int y, int z) {
-        super(window,player, world, x, y, z);
+        super(window, player, world, x, y, z);
 
     }
 
     @Override
     protected void preProcess(Window window, EntityPlayer player, World world, int x, int y, int z) {
         baubleboxinv = new InventoryBaubleBox(player, player.inventory.currentItem);
-        baubles = new InventoryBaubles(player);
-        baubles.setEventHandler(this);
+        baubles = new InventoryBaubles(player, Math.min(8, Configuration.getList().size()));
         if (!player.worldObj.isRemote) {
-            baubles.stackList = PlayerHandler.getPlayerBaubles(player).stackList;
+            baubles = PlayerHandler.getPlayerBaubles(player);
+            baubles.setEventHandler(this);
         }
     }
 

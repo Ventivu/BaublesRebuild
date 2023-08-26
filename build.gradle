@@ -50,7 +50,7 @@ group = "Ventivu.baubles"
 
 def props = new Properties()
 file("../MagCore/gradle.properties").withInputStream { props.load(it) }
-def coreversion=props.getProperty("ModVersion")
+def coreversion = props.getProperty("ModVersion")
 
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
@@ -60,7 +60,7 @@ minecraft {
     replace "@ModName@", ModName
     replace "@ModID@", ModID
     replace "@CoreVersion@", coreversion
-    if(GuiFactory=="") println "我木得配置"
+    if (GuiFactory == "") println "我木得配置"
     replace "@ModFactory@", GuiFactory
     //mappings = "stable_12"
 }
@@ -97,6 +97,8 @@ processResources {
                 'modName': ModName,
                 'desc': ModDescription
     }
+
+    exclude('assets/baubles/textures/gui/*.psd')
 }
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
@@ -130,6 +132,7 @@ runServer {
 }
 
 jar {
+    archiveName(archivesBaseName+"-"+ModVersion+" - "+coreversion+".jar")
     def manifestAttributes = [:]
     manifestAttributes += ["FMLCorePluginContainsFMLMod": true]
     manifestAttributes += ["FMLCorePlugin": TransFormerFile]

@@ -1,8 +1,8 @@
 package baubles.common.Configuration;
 
 import baubles.common.NameSpace;
-import ventivu.core.Client.Configuration.ConfigFactory;
-import ventivu.core.Client.Configuration.GuiFactory;
+import ventivu.core.Configuration.ConfigFactory;
+import ventivu.core.Configuration.GuiFactory;
 
 public class BaublesFactory extends GuiFactory {
     @Override
