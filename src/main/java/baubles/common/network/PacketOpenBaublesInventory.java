@@ -7,6 +7,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 public class PacketOpenBaublesInventory implements IMessage, IMessageHandler<PacketOpenBaublesInventory, IMessage> {
 
@@ -26,7 +27,8 @@ public class PacketOpenBaublesInventory implements IMessage, IMessageHandler<Pac
 
     @Override
     public IMessage onMessage(PacketOpenBaublesInventory message, MessageContext ctx) {
-        ctx.getServerHandler().playerEntity.openGui(Baubles.instance, CommonProxy.bgui.id, ctx.getServerHandler().playerEntity.worldObj, (int) ctx.getServerHandler().playerEntity.posX, (int) ctx.getServerHandler().playerEntity.posY, (int) ctx.getServerHandler().playerEntity.posZ);
+        EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+        player.openGui(Baubles.instance, CommonProxy.bgui.id, player.worldObj, (int) player.posX, (int) player.posY, (int) player.posZ);
         return null;
     }
 

@@ -28,6 +28,10 @@ public class InventoryBaubles implements IInventory {
     public ArrayList<ItemStack> cache = new ArrayList<>();
     private Container eventHandler;
 
+    public InventoryBaubles(EntityPlayer player) {
+        this(player, Configuration.getList().size());
+    }
+
     public InventoryBaubles(EntityPlayer player, int size) {
         this.stackList = new ItemStack[size];
         this.player = new WeakReference<>(player);
@@ -84,7 +88,8 @@ public class InventoryBaubles implements IInventory {
             ItemStack itemstack = this.stackList[par1];
             this.stackList[par1] = null;
             return itemstack;
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -108,7 +113,8 @@ public class InventoryBaubles implements IInventory {
 
                 this.stackList[par1] = null;
 
-            } else {
+            }
+            else {
                 itemstack = this.stackList[par1].splitStack(par2);
 
                 if (itemstack.getItem() instanceof IBauble) {
@@ -125,7 +131,8 @@ public class InventoryBaubles implements IInventory {
                 this.eventHandler.onCraftMatrixChanged(this);
             syncSlotToClients(par1);
             return itemstack;
-        } else {
+        }
+        else {
             return null;
         }
     }

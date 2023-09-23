@@ -21,7 +21,7 @@ public class ContainerBaubles extends WindowContainer {
     @Override
     protected void preProcess(Window window, EntityPlayer player, World world, int x, int y, int z) {
         thePlayer = player;
-        baubles = new InventoryBaubles(player, Configuration.getList().size());
+        baubles = new InventoryBaubles(player);
         baubles.setEventHandler(this);
         if (!player.worldObj.isRemote) {
             baubles.stackList = PlayerHandler.getPlayerBaubles(player).stackList;

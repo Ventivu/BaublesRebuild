@@ -24,9 +24,9 @@ public class ItemRing extends ItemBase implements IBauble {
 
     public ItemRing(String UnlocalizedName) {
         super(UnlocalizedName);
-        this.setMaxStackSize(1);
-        this.setHasSubtypes(true);
-        this.setMaxDamage(0);
+        setMaxStackSize(1);
+        setHasSubtypes(true);
+        setMaxDamage(0);
     }
 
     @SideOnly(Side.CLIENT)

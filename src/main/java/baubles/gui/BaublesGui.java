@@ -73,7 +73,7 @@ public class BaublesGui extends Window {
         root = new WidgetContainer(window);
         int width = window.getWidth();
         int height = window.getHeight();
-        WidgetContainer page = pack.genPackedContainer("page", 61, -11, window);
+        WidgetContainer page = pack.genPackedContainer("page", 62, -11, window);
         root.addWidget(new BackGroundWidget(0, 0, width, height));
         root.addWidget(new PlayerModelWidget(7, 7));
         root.addSlotGroup("inv", 0, window, ((width - invWidth) >> 1) + 1, invHeight + 8);

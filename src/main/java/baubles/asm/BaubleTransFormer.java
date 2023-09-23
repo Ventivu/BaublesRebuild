@@ -3,16 +3,16 @@ package baubles.asm;
 import com.google.common.io.Files;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Level;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
-import ventivu.core.Core.DeployError;
-import ventivu.core.Core.Reason;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -80,15 +80,23 @@ public class BaubleTransFormer implements IFMLLoadingPlugin {
 
                     File temp = File.createTempFile(mod.getName(), null, mod.getParentFile());
                     Files.copy(mod, temp);
-                    JarInputStream source = new JarInputStream(java.nio.file.Files.newInputStream(mod.toPath()));
-                    JarOutputStream jos = new JarOutputStream(java.nio.file.Files.newOutputStream(temp.toPath()));
+                    JarInputStream source = new JarInputStream(java.nio.file.Files.newInputStream(temp.toPath()));
+                    JarOutputStream jos = new JarOutputStream(java.nio.file.Files.newOutputStream(mod.toPath()));
                     ZipEntry e;
                     while ((e = source.getNextEntry()) != null) {
-                        e = new JarEntry(e.getName());
-                        jos.putNextEntry(e);
-                        byte[] code = new byte[1024];
-                        int length;
-                        while ((length = source.read(code)) >= 0) jos.write(code, 0, length);
+                        ZipEntry zosEntry = new ZipEntry(e);
+                        zosEntry.setCompressedSize(-1);
+                        Field field = ZipEntry.class.getDeclaredField("crc");
+                        field.setAccessible(true);
+                        field.set(zosEntry, -1);
+                        field = ZipEntry.class.getDeclaredField("size");
+                        field.setAccessible(true);
+                        field.set(zosEntry, -1);
+
+                        zosEntry.setComment(e.getComment());
+                        zosEntry.setExtra(e.getExtra());
+                        jos.putNextEntry(zosEntry);
+                        IOUtils.copy(source, jos);
                     }
 
                     JarEntry out = new JarEntry("baubles/api/package-info.class");
@@ -97,10 +105,7 @@ public class BaubleTransFormer implements IFMLLoadingPlugin {
                     jos.closeEntry();
                     jos.close();
                     source.close();
-
-                    jar.close();
-                    if(!mod.delete())throw new DeployError(Reason.LoadError);
-                    temp.renameTo(mod);
+                    temp.delete();
                 }
             } catch (Exception e) {
                 FMLLog.log(Level.ERROR, e, "读取文件%s异常", mod);

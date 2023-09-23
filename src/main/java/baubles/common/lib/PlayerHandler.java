@@ -6,15 +6,17 @@ import baubles.common.container.InventoryBaubles;
 import com.google.common.io.Files;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class PlayerHandler {
 
@@ -27,17 +29,15 @@ public class PlayerHandler {
     public static InventoryBaubles getPlayerBaubles(EntityPlayer player) {
         int size = Configuration.getList().size();
         if (!playerBaubles.containsKey(player.getCommandSenderName())) {
-            InventoryBaubles inventory = new InventoryBaubles(player, size);
-            playerBaubles.put(player.getCommandSenderName(), inventory);
+            playerBaubles.put(player.getCommandSenderName(), new InventoryBaubles(player, size));
         }
-
         InventoryBaubles inv = playerBaubles.get(player.getCommandSenderName());
-        if (inv.stackList.length != size) inv.stackList = new ItemStack[size];
+        if (inv.stackList.length != size) inv.stackList = Arrays.copyOf(inv.stackList, size);
         return inv;
     }
 
-    public static void setPlayerBaubles(EntityPlayer player, InventoryBaubles inventory) {
-        playerBaubles.put(player.getCommandSenderName(), inventory);
+    public static void setPlayerBaubles(EntityPlayer player, @Nonnull InventoryBaubles inventory) {
+        playerBaubles.put(player.getCommandSenderName(), Objects.requireNonNull(inventory));
     }
 
     public static void loadPlayerBaubles(EntityPlayer player, File file1, File file2) {
@@ -70,7 +70,7 @@ public class PlayerHandler {
                 }
 
                 if (data != null) {
-                    InventoryBaubles inventory = new InventoryBaubles(player, Configuration.getList().size());
+                    InventoryBaubles inventory = new InventoryBaubles(player);
                     inventory.readNBT(data);
                     playerBaubles.put(player.getCommandSenderName(), inventory);
                     if (save) savePlayerBaubles(player, file1, file2);

@@ -73,11 +73,9 @@ def runtime = String.format(coreLocation, "MagCore-${coreversion}-Dev.jar")
 def sources = String.format(coreLocation, "MagCore-${coreversion}-sources.jar")
 dependencies {
     implementation 'org.jetbrains:annotations-java5:20.1.0'
-    //implementation 'Ventivu:MagCore:' + coreversion
     implementation fileTree("Mods")
     runtimeOnly fileTree("runtime")
     if (uselib) {
-        //compileOnly files(complie)
         implementation files(runtime)
     }
 }
@@ -132,7 +130,7 @@ runServer {
 }
 
 jar {
-    archiveName(archivesBaseName+"-"+ModVersion+" - "+coreversion+".jar")
+    archiveName(archivesBaseName + "-" + ModVersion + " - " + coreversion + ".jar")
     def manifestAttributes = [:]
     manifestAttributes += ["FMLCorePluginContainsFMLMod": true]
     manifestAttributes += ["FMLCorePlugin": TransFormerFile]
