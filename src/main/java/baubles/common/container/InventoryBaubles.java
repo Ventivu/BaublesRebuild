@@ -107,8 +107,7 @@ public class InventoryBaubles implements IInventory {
                 itemstack = this.stackList[par1];
 
                 if (itemstack != null && itemstack.getItem() instanceof IBauble) {
-                    ((IBauble) itemstack.getItem()).onUnequipped(itemstack,
-                            player.get());
+                    ((IBauble) itemstack.getItem()).onUnequipped(itemstack, player.get());
                 }
 
                 this.stackList[par1] = null;
@@ -118,8 +117,7 @@ public class InventoryBaubles implements IInventory {
                 itemstack = this.stackList[par1].splitStack(par2);
 
                 if (itemstack.getItem() instanceof IBauble) {
-                    ((IBauble) itemstack.getItem()).onUnequipped(itemstack,
-                            player.get());
+                    ((IBauble) itemstack.getItem()).onUnequipped(itemstack, player.get());
                 }
 
                 if (this.stackList[par1].stackSize == 0) {
@@ -127,8 +125,7 @@ public class InventoryBaubles implements IInventory {
                 }
 
             }
-            if (eventHandler != null)
-                this.eventHandler.onCraftMatrixChanged(this);
+            if (eventHandler != null) this.eventHandler.onCraftMatrixChanged(this);
             syncSlotToClients(par1);
             return itemstack;
         }
@@ -143,15 +140,15 @@ public class InventoryBaubles implements IInventory {
      */
     @Override
     public void setInventorySlotContents(int par1, ItemStack stack) {
-
-        if (!blockEvents && this.stackList[par1] != null) {
-            ((IBauble) stackList[par1].getItem()).onUnequipped(stackList[par1], player.get());
-        }
         this.stackList[par1] = stack;
-        if (!blockEvents && stack != null && stack.getItem() instanceof IBauble) {
-            ((IBauble) stack.getItem()).onEquipped(stack, player.get());
-        }
         syncSlotToClients(par1);
+        if (blockEvents) return;
+        if (stack == null) {
+            ItemStack stack1 = this.stackList[par1];
+            if (stack1 != null && stack1.getItem() instanceof IBauble)
+                ((IBauble) stackList[par1].getItem()).onUnequipped(stackList[par1], player.get());
+        }
+        else if (stack.getItem() instanceof IBauble) ((IBauble) stack.getItem()).onEquipped(stack, player.get());
     }
 
     /**
@@ -265,14 +262,10 @@ public class InventoryBaubles implements IInventory {
     public void dropItems(ArrayList<EntityItem> drops) {
         for (int i = 0; i < stackList.length; ++i) {
             if (this.stackList[i] != null) {
-                EntityItem ei = new EntityItem(player.get().worldObj,
-                        player.get().posX, player.get().posY
-                        + player.get().eyeHeight, player.get().posZ,
-                        this.stackList[i].copy());
+                EntityItem ei = new EntityItem(player.get().worldObj, player.get().posX, player.get().posY + player.get().eyeHeight, player.get().posZ, this.stackList[i].copy());
                 ei.delayBeforeCanPickup = 40;
                 float f1 = player.get().worldObj.rand.nextFloat() * 0.5F;
-                float f2 = player.get().worldObj.rand.nextFloat()
-                        * (float) Math.PI * 2.0F;
+                float f2 = player.get().worldObj.rand.nextFloat() * (float) Math.PI * 2.0F;
                 ei.motionX = -MathHelper.sin(f2) * f1;
                 ei.motionZ = MathHelper.cos(f2) * f1;
                 ei.motionY = 0.20000000298023224D;
@@ -286,9 +279,7 @@ public class InventoryBaubles implements IInventory {
     public void dropItemsAt(ArrayList<EntityItem> drops, Entity e) {
         for (int i = 0; i < stackList.length; ++i) {
             if (this.stackList[i] != null) {
-                EntityItem ei = new EntityItem(e.worldObj,
-                        e.posX, e.posY + e.getEyeHeight(), e.posZ,
-                        this.stackList[i].copy());
+                EntityItem ei = new EntityItem(e.worldObj, e.posX, e.posY + e.getEyeHeight(), e.posZ, this.stackList[i].copy());
                 ei.delayBeforeCanPickup = 40;
                 float f1 = e.worldObj.rand.nextFloat() * 0.5F;
                 float f2 = e.worldObj.rand.nextFloat() * (float) Math.PI * 2.0F;
@@ -304,8 +295,7 @@ public class InventoryBaubles implements IInventory {
 
     public void syncContainerToClients() {
         try {
-            if (Baubles.proxy.getClientWorld() == null)
-                PacketHandler.INSTANCE.sendToAll(new PacketSyncSlots());
+            if (Baubles.proxy.getClientWorld() == null) PacketHandler.INSTANCE.sendToAll(new PacketSyncSlots());
         } catch (Exception e) {
             e.printStackTrace();
         }

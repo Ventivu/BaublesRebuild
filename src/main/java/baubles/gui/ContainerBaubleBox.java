@@ -38,5 +38,6 @@ public class ContainerBaubleBox extends WindowContainer {
     public void putStacksInSlots(ItemStack[] stacks) {
         baubles.blockEvents = true;
         super.putStacksInSlots(stacks);
+        baubles.blockEvents = false;
     }
 }

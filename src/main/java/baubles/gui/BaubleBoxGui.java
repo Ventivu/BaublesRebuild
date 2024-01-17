@@ -17,6 +17,7 @@ import ventivu.core.Core.Reason;
 import ventivu.core.WindowFrame.*;
 import ventivu.core.WindowFrame.Widgets.BackGroundWidget;
 import ventivu.core.WindowFrame.Widgets.WidgetContainer;
+import ventivu.core.WindowFrame.Widgets.interfaces.IWidget;
 
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class BaubleBoxGui extends Window {
     }
 
     @Override
-    public void serverSideConfigs(WindowContainer container, EntityPlayer player, World world, int x, int y, int z) {
+    public void serverConfigs(WindowContainer container, EntityPlayer player, World world, int x, int y, int z) {
         int counter = 0;
         ContainerBaubleBox box = (ContainerBaubleBox) container;
         box.addPlayerInventory(0);
@@ -47,29 +48,29 @@ public class BaubleBoxGui extends Window {
     }
 
     @Override
-    public void updateConfigs(Map<String, GuiWindow.UpdateFunc> map) {
-
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public WidgetContainer widgetConfigs(GuiWindow window) {
         int round = 7;
-        GuiRenderUtils.bindTexture(new ResourceLocation("magcore", "textures/gui/widgets.png"));
-        WidgetBorder boreder = GuiRenderUtils.borderSet.get("BG");
         int width = window.getWidth();
         int height = window.getHeight();
+        GuiRenderUtils.bindTexture(new ResourceLocation("magcore", "textures/gui/widgets.png"));
+        WidgetBorder boreder = GuiRenderUtils.borderSet.get("BG");
         WidgetContainer root = new WidgetContainer(window);
-        WidgetContainer container = new WidgetContainer("main", 0, 0, width, height);
+        WidgetContainer container = new WidgetContainer(0, 0, width, height);
+
         container.addWidget(new BackGroundWidget(0, 0, width, height));
-        container.addSlotGroup("inv", 0, window, ((width - invWidth) >> 1) + 1, height - invHeight - round);
+
         BackGroundWidget widget = new BackGroundWidget(((width - invWidth) >> 1) - boreder.getLeft(), round - boreder.getTop() - 1, 0, 0);
         container.addWidget(widget);
-        container.addSlotGroup("baubles", 1, window, ((width - invWidth) >> 1) + 1, round);
-        int count = container.getGroupByName("baubles").get().size();
+
+        container.addSlotGroup( 0, window, ((width - invWidth) >> 1) + 1, height - invHeight - round);
+        container.addSlotGroup(1, window, ((width - invWidth) >> 1) + 1, round);
+        List<IWidget> widgets=container.get();
+        int count = ((WidgetContainer)widgets.get(widgets.size()-1)).get().size();
         widget.setWidth((int) (18 * (Math.ceil(count / 4f))) + boreder.getLeft() + boreder.getRight());
         widget.setHeight((count > 4 ? 72 : (18 * count)) + boreder.getTop() + boreder.getBottom());
-        container.addSlotGroup("box", 2, window, width - 114, round);
+
+        container.addSlotGroup(2, window, width - 114, round);
         root.addWidget(container);
         return root;
     }

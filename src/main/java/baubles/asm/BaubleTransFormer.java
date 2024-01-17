@@ -7,8 +7,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
-import ventivu.core.Core.DeployError;
-import ventivu.core.Core.Reason;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +82,7 @@ public class BaubleTransFormer implements IFMLLoadingPlugin {
                 FMLLog.log(Level.ERROR, e, "操作文件%s异常", mod);
             }
         }
-        if (hasChanged) throw new DeployError(Reason.FORTRACE.setReasonMessage("这是一次计划性报错，请再启动一次"));
+        if (hasChanged) throw new RuntimeException("这是一次计划性报错，请再启动一次");
     }
 
     private void injectJar(ZipFile jar, byte[] packageinfo, File directory) throws IOException {
@@ -113,7 +111,7 @@ public class BaubleTransFormer implements IFMLLoadingPlugin {
                 break;
             } catch (ZipException e) {
                 if (planB)
-                    throw new DeployError(Reason.LoadError.setReasonMessage("不支持的特殊压缩方案:" + jar.getName()));
+                    throw new RuntimeException("不支持的特殊压缩方案:" + jar.getName(), e);
                 planB = true;
             }
     }

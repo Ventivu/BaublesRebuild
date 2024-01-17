@@ -23,6 +23,8 @@ buildscript {
     }
 }
 
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
 apply plugin: 'forge'
 apply plugin: 'curseforge'
 sourceCompatibility = targetCompatibility = '1.8'
@@ -44,13 +46,14 @@ mirrorstation {
     mavenMavenUrl = "https://repo1.maven.org/maven2"
 }
 
-version = ModVersion
-archivesBaseName = ModName
 group = "Ventivu.baubles"
+archivesBaseName = ModName
+version = ModVersion
 
-def props = new Properties()
-file("../MagCore/gradle.properties").withInputStream { props.load(it) }
-def coreversion = props.getProperty("ModVersion")
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
 
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
@@ -59,25 +62,18 @@ minecraft {
     replace "@ModVersion@", ModVersion
     replace "@ModName@", ModName
     replace "@ModID@", ModID
-    replace "@CoreVersion@", coreversion
     if (GuiFactory == "") println "我木得配置"
     replace "@ModFactory@", GuiFactory
     //mappings = "stable_12"
 }
 
-// 依赖库
-def uselib = true
-def coreLocation = "../MagCore/build/libs/%s"
-def complie = String.format(coreLocation, "MagCore-${coreversion}.jar")
-def runtime = String.format(coreLocation, "MagCore-${coreversion}-Dev.jar")
-def sources = String.format(coreLocation, "MagCore-${coreversion}-sources.jar")
 dependencies {
     implementation 'org.jetbrains:annotations-java5:20.1.0'
+    implementation 'Ventivu:MagCore:latest.release:dev'
+    api 'Ventivu:CustomStuff:latest.release:api'
     implementation fileTree("Mods")
     runtimeOnly fileTree("runtime")
-    if (uselib) {
-        implementation files(runtime)
-    }
+
 }
 
 
@@ -103,13 +99,14 @@ tasks.withType(JavaCompile) {
 }
 
 task buildJar(type: Jar) {
+    classifier("dev")
     archiveName(archivesBaseName + "Dev.jar")
     from sourceSets.main.output
 }
 
 // 这将此任务创建一个.jar文件，其中包含此 MOD 的源代码
 task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveName(archivesBaseName + "Dev-sources.jar")
+    classifier("sources")
     from sourceSets.main.allSource
 }
 
@@ -130,7 +127,6 @@ runServer {
 }
 
 jar {
-    archiveName(archivesBaseName + "-" + ModVersion + " - " + coreversion + ".jar")
     def manifestAttributes = [:]
     manifestAttributes += ["FMLCorePluginContainsFMLMod": true]
     manifestAttributes += ["FMLCorePlugin": TransFormerFile]

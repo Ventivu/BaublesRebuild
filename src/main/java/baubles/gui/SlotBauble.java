@@ -14,7 +14,7 @@ import ventivu.core.WindowFrame.Widgets.base.SlotWidget;
 
 import static baubles.api.BaubleType.ANY;
 import static ventivu.core.WindowFrame.GuiRenderUtils.*;
-import static ventivu.core.WindowFrame.Widgets.base.WindowWidget.widgetTexture;
+import static ventivu.core.WindowFrame.Widgets.base.ClientWidget.widgetTexture;
 
 public class SlotBauble extends SlotWidget {
     public static final ResourceLocation texture = new ResourceLocation("baubles", "textures/gui/BaublesWidget.png");
