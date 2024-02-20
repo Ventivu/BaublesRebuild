@@ -11,6 +11,7 @@ import ventivu.core.WindowFrame.Window;
 import ventivu.core.WindowFrame.WindowContainer;
 
 public class ContainerBaubleBox extends WindowContainer {
+    public static final int baublesSize=12;
     public InventoryBaubleBox baubleboxinv;
     public InventoryBaubles baubles;
 
@@ -22,7 +23,7 @@ public class ContainerBaubleBox extends WindowContainer {
     @Override
     protected void preProcess(Window window, EntityPlayer player, World world, int x, int y, int z) {
         baubleboxinv = new InventoryBaubleBox(player, player.inventory.currentItem);
-        baubles = new InventoryBaubles(player, Math.min(8, Configuration.getList().size()));
+        baubles = new InventoryBaubles(player, Math.min(baublesSize, Configuration.getList().size()));
         if (!player.worldObj.isRemote) {
             baubles = PlayerHandler.getPlayerBaubles(player);
             baubles.setEventHandler(this);

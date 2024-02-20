@@ -13,19 +13,16 @@
     "width": 18,
     "height": 18
   },
-  "ANY": {
-    "V": 18,
-    "width": 18,
-    "height": 18
-  },
   "BUTTON_O": {
-    "U": 54,
-    "width": 18,
-    "height": 18
+    "U": 0,
+    "V":21,
+    "width": 10,
+    "height": 10
   },
   "BUTTON_I": {
-    "U": 72,
-    "width": 18,
-    "height": 18
+    "U": 10,
+    "V":21,
+    "width": 10,
+    "height": 10
   }
 }

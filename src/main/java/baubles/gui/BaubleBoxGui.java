@@ -20,7 +20,6 @@ import ventivu.core.WindowFrame.Widgets.WidgetContainer;
 import ventivu.core.WindowFrame.Widgets.interfaces.IWidget;
 
 import java.util.List;
-import java.util.Map;
 
 public class BaubleBoxGui extends Window {
 
@@ -39,9 +38,8 @@ public class BaubleBoxGui extends Window {
         ContainerBaubleBox box = (ContainerBaubleBox) container;
         box.addPlayerInventory(0);
         List<BaubleType> list = Configuration.getList();
-        while (counter < list.size() && counter < 8) {
+        while (counter < list.size() && counter < ContainerBaubleBox.baublesSize)
             box.addSlotToContainer(new SlotBauble(box.baubles, list.get(counter), counter, (counter / 4) * 18, (counter++ % 4) * 18).setGroupID(1));
-        }
         for (int i = 0; i < 6; ++i)
             for (int j = 0; j < 4; ++j)
                 box.addSlotToContainer(new SlotBauble(box.baubleboxinv, null, i * 4 + j, i * 18, j * 18).setGroupID(2));
@@ -54,7 +52,7 @@ public class BaubleBoxGui extends Window {
         int width = window.getWidth();
         int height = window.getHeight();
         GuiRenderUtils.bindTexture(new ResourceLocation("magcore", "textures/gui/widgets.png"));
-        WidgetBorder boreder = GuiRenderUtils.borderSet.get("BG");
+        WidgetBorder boreder = GuiRenderUtils.getBorder("BG");
         WidgetContainer root = new WidgetContainer(window);
         WidgetContainer container = new WidgetContainer(0, 0, width, height);
 
@@ -63,10 +61,10 @@ public class BaubleBoxGui extends Window {
         BackGroundWidget widget = new BackGroundWidget(((width - invWidth) >> 1) - boreder.getLeft(), round - boreder.getTop() - 1, 0, 0);
         container.addWidget(widget);
 
-        container.addSlotGroup( 0, window, ((width - invWidth) >> 1) + 1, height - invHeight - round);
+        container.addSlotGroup(0, window, ((width - invWidth) >> 1) + 1, height - invHeight - round);
         container.addSlotGroup(1, window, ((width - invWidth) >> 1) + 1, round);
-        List<IWidget> widgets=container.get();
-        int count = ((WidgetContainer)widgets.get(widgets.size()-1)).get().size();
+        List<IWidget<?>> widgets = container.get();
+        int count = ((WidgetContainer) widgets.get(widgets.size() - 1)).get().size();
         widget.setWidth((int) (18 * (Math.ceil(count / 4f))) + boreder.getLeft() + boreder.getRight());
         widget.setHeight((count > 4 ? 72 : (18 * count)) + boreder.getTop() + boreder.getBottom());
 
@@ -93,9 +91,9 @@ public class BaubleBoxGui extends Window {
 
     @Override
     public ItemStack transferStackInSlot(WindowContainer container, EntityPlayer EntityPlayer, int slotID) {
-        int playerslots = container.inventory.mainInventory.length;
-        int baubleslots = Math.min(((IInventory) ((ContainerBaubleBox) container).baubles).getSizeInventory(), 8) + playerslots;
-        int boxSlots = ((IInventory) ((ContainerBaubleBox) container).baubleboxinv).getSizeInventory() + baubleslots;
+        final int playerslots = container.inventory.mainInventory.length;
+        final int baubleslots = Math.min((((ContainerBaubleBox) container).baubles).getSizeInventory(), ContainerBaubleBox.baublesSize) + playerslots;
+        final int boxSlots = ((IInventory) ((ContainerBaubleBox) container).baubleboxinv).getSizeInventory() + baubleslots;
 
         ItemStack itemstack = null;
         Slot slot = (Slot) container.inventorySlots.get(slotID);
@@ -108,25 +106,24 @@ public class BaubleBoxGui extends Window {
             if (slotID < playerslots) {
                 if (itemstack.getItem() instanceof IBauble) {
                     if (!container.mergeItemStack(itemstack, playerslots, baubleslots, false))
-                        if (!container.mergeItemStack(itemstack, baubleslots, boxSlots, false)) if (slotID < 9) {
-                            if (!container.mergeItemStack(itemstack, 0, playerslots, true)) return null;
-                        } else if (!container.mergeItemStack(itemstack, 0, playerslots, false)) return null;
-                } else if (slotID < 9) {
-                    if (!container.mergeItemStack(itemstack, 0, playerslots, true)) return null;
-                } else if (!container.mergeItemStack(itemstack, 0, playerslots, false)) return null;
-            } else if (slotID < baubleslots) {
+                        if (!container.mergeItemStack(itemstack, baubleslots, boxSlots, false))
+                            if(BaublesGui.transferPlayerSlot(container,itemstack,0,slotID))return null;
+                }
+                else if(BaublesGui.transferPlayerSlot(container,itemstack,0,slotID))return null;
+            }
+            else if (slotID < baubleslots) {
                 if (!container.mergeItemStack(itemstack, baubleslots, boxSlots, false))
                     if (!container.mergeItemStack(itemstack, 0, playerslots, false)) return null;
-            } else if (slotID < boxSlots) {
+            }
+            else if (slotID < boxSlots) {
                 if (!container.mergeItemStack(itemstack, playerslots, baubleslots, false))
                     if (!container.mergeItemStack(itemstack, 0, playerslots, false)) return null;
-            } else throw new DeployError(Reason.WRONGDATA);
-
-            if (itemstack.stackSize == 0) {
-                slot.putStack(null);
-            } else {
-                slot.onSlotChanged();
             }
+            else throw new DeployError(Reason.WRONGDATA);
+
+            if (itemstack.stackSize == 0) slot.putStack(null);
+            else slot.onSlotChanged();
+
             oldStack.stackSize -= itemstack.stackSize;
             slot.onPickupFromSlot(EntityPlayer, oldStack);
             if (itemstack.stackSize == 0) itemstack = null;

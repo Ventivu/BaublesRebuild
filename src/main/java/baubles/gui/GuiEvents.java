@@ -9,7 +9,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import ventivu.core.WindowFrame.GuiWindow;
 
 import java.lang.reflect.Method;
 
@@ -46,9 +45,10 @@ public class GuiEvents {
             if (event.gui instanceof GuiInventory) {
                 if (!event.gui.mc.thePlayer.getActivePotionEffects().isEmpty() && isNeiHidden())
                     guiLeft = 160 + (event.gui.width - xSize - 200) / 2;
-                event.buttonList.add(new GuiBaublesButton(55, guiLeft + 66, guiTop + 9, 10, 10, I18n.format("button.baubles")));
-            } else
-                event.buttonList.add(new GuiBaublesButton(55, guiLeft + 48, guiTop + 9, 10, 10, I18n.format("button.normal")));
+                event.buttonList.add(new GuiBaublesButton(55, guiLeft + 66, guiTop + 9, I18n.format("button.baubles")));
+            }
+            else
+                event.buttonList.add(new GuiBaublesButton(55, guiLeft + 48, guiTop + 9, I18n.format("button.normal")));
         }
 
     }

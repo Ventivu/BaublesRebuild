@@ -82,7 +82,7 @@ public class BaubleTransFormer implements IFMLLoadingPlugin {
                 FMLLog.log(Level.ERROR, e, "操作文件%s异常", mod);
             }
         }
-        if (hasChanged) throw new RuntimeException("这是一次计划性报错，请再启动一次");
+        if (hasChanged) throw new RuntimeException("这是一次计划性报错,mod列表未更改的情况下不会再次发生，请再启动一次");
     }
 
     private void injectJar(ZipFile jar, byte[] packageinfo, File directory) throws IOException {

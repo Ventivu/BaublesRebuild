@@ -21,7 +21,7 @@ public class Configuration extends ConfigFactory {
     private static boolean splitSurvivalCreative = false;
 
     public Configuration(FMLPreInitializationEvent event) {
-        super(event, NameSpace.ModID);
+        super(event, NameSpace.ModID,NameSpace.ModVersion);
         itemRing = (new ItemRing("Ring"));
         instance = this;
     }
@@ -36,11 +36,11 @@ public class Configuration extends ConfigFactory {
 
     @Override
     public void initConfigs() {
-        splitSurvivalCreative = fastSet(get("general", "SplitSurvivalCreative", false, "是否分离生存和创造模式的饰品栏"), Action.NONE).getBoolean();//save it
+        splitSurvivalCreative = fastSet(get("general", "SplitSurvivalCreative", false, "是否分离生存和创造模式的饰品栏"),EditLevel.NONE).getBoolean();//save it
         String[] allows = new String[BaubleType.values().length];
         for (int i = 0; i < allows.length; ++i)
             allows[i] = BaubleType.values()[i].name();
-        String[] list = fastSet(getCycleList("slots", "general", new String[]{"AMULET", "RING", "RING", "BELT"}, "饰品栏各格位属性", allows), Action.NONE).getStringList();
+        String[] list = fastSet(getCycleList("slots", "general", new String[]{"AMULET", "RING", "RING", "BELT"}, "饰品栏各格位属性", allows), EditLevel.NONE).getStringList();
         slots.clear();
         for (String s : list) {
             try {

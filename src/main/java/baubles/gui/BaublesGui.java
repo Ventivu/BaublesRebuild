@@ -24,6 +24,18 @@ public class BaublesGui extends Window {
         super(handler);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean transferPlayerSlot(WindowContainer container, ItemStack stack, int start, int slotID) {
+        final int realA = start + 9, realB = start + 36;
+        if (slotID < realA) {
+            if (!container.mergeItemStack(stack, realA, realB, false))
+                return container.mergeStackInRange(stack, start, realA, slotID, false);
+        }
+        else if (!container.mergeItemStack(stack, start, start + 9, false))
+                return container.mergeStackInRange(stack, realA, realB, slotID, false);
+        return true;
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public GuiWindow mkWindow(EntityPlayer player, World world, int x, int y, int z) {
@@ -58,11 +70,11 @@ public class BaublesGui extends Window {
     }
 
     @Override
-    public ItemStack transferStackInSlot(WindowContainer container, EntityPlayer EntityPlayer, int slotID) {
+    public ItemStack transferStackInSlot(WindowContainer container, EntityPlayer player, int slotID) {
+        final Slot slot = (Slot) container.inventorySlots.get(slotID);
+        final int playerslots = container.inventory.mainInventory.length;
+        final int baubleslots = ((ContainerBaubles) container).baubles.getSizeInventory();
         ItemStack itemstack = null;
-        Slot slot = (Slot) container.inventorySlots.get(slotID);
-        int playerslots = container.inventory.mainInventory.length;
-        int baubleslots = ((ContainerBaubles) container).baubles.getSizeInventory();
         ItemStack oldStack;
         if (slot != null && slot.getHasStack()) {
             itemstack = slot.getStack();
@@ -72,20 +84,20 @@ public class BaublesGui extends Window {
             }
             else if (itemstack.getItem() instanceof IBauble) {
                 if (!container.mergeItemStack(itemstack, playerslots, playerslots + baubleslots, false)) {
-                    if (!container.mergeItemStack(itemstack, 0, playerslots, false)) return null;
+                    if (!transferPlayerSlot(container, itemstack, 0, slotID)) return null;
                 }
             }
-            else if (!container.mergeItemStack(itemstack, 0, playerslots, false)) return null;
+            else if (!transferPlayerSlot(container, itemstack, 0, slotID)) return null;
 
+            oldStack.stackSize -= itemstack.stackSize;
             if (itemstack.stackSize == 0) {
                 slot.putStack(null);
+                itemstack = null;
             }
             else {
                 slot.onSlotChanged();
             }
-            oldStack.stackSize -= itemstack.stackSize;
-            slot.onPickupFromSlot(EntityPlayer, oldStack);
-            if (itemstack.stackSize == 0) itemstack = null;
+            slot.onPickupFromSlot(player, oldStack);
         }
         return itemstack;
     }

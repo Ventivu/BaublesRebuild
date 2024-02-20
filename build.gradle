@@ -62,6 +62,7 @@ minecraft {
     replace "@ModVersion@", ModVersion
     replace "@ModName@", ModName
     replace "@ModID@", ModID
+    replace "@CoreVersion@", MinCoreVer
     if (GuiFactory == "") println "我木得配置"
     replace "@ModFactory@", GuiFactory
     //mappings = "stable_12"
@@ -73,7 +74,6 @@ dependencies {
     api 'Ventivu:CustomStuff:latest.release:api'
     implementation fileTree("Mods")
     runtimeOnly fileTree("runtime")
-
 }
 
 
@@ -94,18 +94,19 @@ processResources {
 
     exclude('assets/baubles/textures/gui/*.psd')
 }
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
 }
 
-task buildJar(type: Jar) {
+tasks.register('buildJar', Jar) {
     classifier("dev")
     archiveName(archivesBaseName + "Dev.jar")
     from sourceSets.main.output
 }
 
 // 这将此任务创建一个.jar文件，其中包含此 MOD 的源代码
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register('sourcesJar', Jar) {
+    dependsOn classes
     classifier("sources")
     from sourceSets.main.allSource
 }

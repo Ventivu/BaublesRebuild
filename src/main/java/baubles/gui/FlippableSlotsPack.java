@@ -12,7 +12,7 @@ import ventivu.core.WindowFrame.Widgets.TextWidget;
 import ventivu.core.WindowFrame.Widgets.WidgetContainer;
 import ventivu.core.WindowFrame.Widgets.base.ButtonWidget;
 import ventivu.core.WindowFrame.Widgets.base.SlotWidget;
-import ventivu.core.WindowFrame.Widgets.interfaces.IAlignment;
+import ventivu.core.WindowFrame.Widgets.interfaces.Alignments;
 import ventivu.core.WindowFrame.Widgets.interfaces.IWidget;
 import ventivu.core.WindowFrame.WindowContainer;
 
@@ -73,52 +73,52 @@ public class FlippableSlotsPack {
         int size = this.width * this.height;
         WidgetContainer container = new WidgetContainer(x, y, width, height);
         container.addSlotGroup(groupID, window, 0, 0);
-        List<IWidget> baublesContainer = ((WidgetContainer) container.get().get(container.get().size() - 1)).get();
+        List<IWidget<?>> baublesContainer = ((WidgetContainer) container.get().get(container.get().size() - 1)).get();
 
         int max = (int) Math.ceil(baublesContainer.size() / (double) size);
         if (max > 1) {
             int wid = (int) (width * 0.15);
-            ButtonWidget prevPage = new ButtonWidget(499, 0, 0, wid, 15, null);
+            ButtonWidget prevPage = new ButtonWidget(499, 0, -4, wid, 15);
             prevPage.setEnabled(false);
-            prevPage.setClientOnlyFunc(w -> {
-                int page = ((WindowContainer) w.inventorySlots).tag.getInteger(Tag_Page);
+            prevPage.setClientOnlyFunc(() -> {
+                int page = ((WindowContainer) window.inventorySlots).tag.getInteger(Tag_Page);
                 prevPage.setEnabled(page > 2);
 
                 for (int start = (page - 1) * size, end = Math.min(page * size, baublesContainer.size()); start < end; start++)
                     baublesContainer.get(start).setState(false);
                 for (int start = (--page - 1) * size, end = page * size; start < end; start++)
                     baublesContainer.get(start).setState(true);
-                ((WindowContainer) w.inventorySlots).tag.setInteger(Tag_Page, page);
-            }).setDisplayFunc(w -> {
-                int page = ((WindowContainer) w.inventorySlots).tag.getInteger(Tag_Page);
+                ((WindowContainer) window.inventorySlots).tag.setInteger(Tag_Page, page);
+            }).setDisplayFunc(() -> {
+                int page = ((WindowContainer) window.inventorySlots).tag.getInteger(Tag_Page);
                 prevPage.setEnabled(page > 1);
                 return "<";
             });
             container.addWidget(prevPage);
 
 
-            ButtonWidget nextPage = new ButtonWidget(501, width - wid, 0, wid, 15, null);
-            nextPage.setClientOnlyFunc(w -> {
-                int page = ((WindowContainer) w.inventorySlots).tag.getInteger(Tag_Page);
+            ButtonWidget nextPage = new ButtonWidget(501, width - wid, -4, wid, 15);
+            nextPage.setClientOnlyFunc(() -> {
+                int page = ((WindowContainer) window.inventorySlots).tag.getInteger(Tag_Page);
                 nextPage.setEnabled(page < max - 1);
 
                 for (int start = (page - 1) * size, end = page * size; start < end; start++)
                     baublesContainer.get(start).setState(false);
                 for (int start = (++page - 1) * size, end = Math.min(page * size, baublesContainer.size()); start < end; start++)
                     baublesContainer.get(start).setState(true);
-                ((WindowContainer) w.inventorySlots).tag.setInteger(Tag_Page, page);
-            }).setDisplayFunc(w -> {
-                int page = ((WindowContainer) w.inventorySlots).tag.getInteger(Tag_Page);
+                ((WindowContainer) window.inventorySlots).tag.setInteger(Tag_Page, page);
+            }).setDisplayFunc(() -> {
+                int page = ((WindowContainer) window.inventorySlots).tag.getInteger(Tag_Page);
                 nextPage.setEnabled(page < max);
                 return ">";
             });
 
             container.addWidget(nextPage);
-            TextWidget text = new TextWidget(width / 2, 10, "baubles.gui.page").func(w -> {
-                NBTTagCompound tag = ((WindowContainer) w.inventorySlots).tag;
+            TextWidget text = new TextWidget(width / 2, 10, "baubles.gui.page").func(() -> {
+                NBTTagCompound tag = ((WindowContainer) window.inventorySlots).tag;
                 return new Object[]{tag.getInteger(Tag_Page), tag.getInteger(Tag_MaxPage)};
             });
-            text.setAlignment(IAlignment.Alignments.CENTER);
+            text.setAlignment(Alignments.CENTER);
             container.addWidget(text);
         }
 
